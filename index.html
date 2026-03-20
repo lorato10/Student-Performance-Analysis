@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Core Analytics | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Mobile Sidebar Toggle -->
+    <button class="menu-toggle" id="menuToggle">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo">CORE<span>ANALYTICS</span></div>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-item active">Public Dashboard</a>
+            <a href="admin.html" class="nav-item">Admin Portal (Login)</a>
+        </nav>
+    </aside>
+
+    <main class="main-content" id="mainContent">
+        <header class="content-header">
+            <div class="header-flex">
+                <div>
+                    <h1>Performance Analytics</h1>
+                    <p>Real-time view of members, students, and interns.</p>
+                </div>
+                <div class="search-container">
+                    <input type="text" id="studentSearch" placeholder="Search by name, ID, or domain...">
+                </div>
+            </div>
+        </header>
+
+        <!-- KPI Stats -->
+        <div class="kpi-grid">
+            <div class="card">
+                <h3>Total Members</h3>
+                <p id="totalCount" class="kpi-value">0</p>
+            </div>
+            <div class="card">
+                <h3>Avg Attendance</h3>
+                <p id="avgAtt" class="kpi-value">0%</p>
+            </div>
+            <div class="card">
+                <h3>Active Domains</h3>
+                <p id="deptCount" class="kpi-value">0</p>
+            </div>
+        </div>
+
+        <!-- Leaderboard & Charts -->
+        <div class="charts-grid">
+            <section class="card">
+                <div class="card-header">
+                    <h3>🏆 Elite Performers (Top 5)</h3>
+                    <span style="font-size: 0.8rem; color: var(--secondary);">Ranked by Avg Performance</span>
+                </div>
+                <div class="rank-list" id="leaderboard">
+                    <!-- Javascript populates this -->
+                </div>
+            </section>
+
+            <section class="card">
+                <h3>Domain Distribution</h3>
+                <div class="chart-wrapper"><canvas id="domainChart"></canvas></div>
+            </section>
+        </div>
+
+        <!-- Comprehensive Member Roster -->
+        <section class="card roster-section">
+            <div class="card-header">
+                <h2>Member Roster</h2>
+                <div id="filterStatus">Showing all members</div>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Domain</th>
+                            <th>Attendance</th>
+                            <th>Marks</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="publicTableBody">
+                        <!-- Data flows from dashboard.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <br>
+        <header class="content-header">
+            <h2>Detailed Performance Insights</h2>
+            <p>Advanced metrics and comparative analytics.</p>
+        </header>
+        <br>
+        <div class="charts-grid">
+            <section class="card">
+                <h3>Pass vs. Fail Distribution</h3>
+                <div class="chart-wrapper"><canvas id="statusDistributionChart"></canvas></div>
+            </section>
+            <section class="card">
+                <h3>Average Marks by Domain</h3>
+                <div class="chart-wrapper"><canvas id="domainPerformanceChart"></canvas></div>
+            </section>
+        </div>
+
+        <div class="charts-grid" style="margin-top: 1.5rem;">
+            <section class="card">
+                <h3>Student vs. Intern Comparison (Avg Score)</h3>
+                <div class="chart-wrapper"><canvas id="typeComparisonChart"></canvas></div>
+            </section>
+            <section class="card"
+                style="background: transparent; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center;">
+                <p style="color: var(--secondary);">More analytics coming soon...</p>
+            </section>
+        </div>
+    </main>
+
+    <script src="firebase-config.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>

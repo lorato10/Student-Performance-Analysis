@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal | Secure Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <!-- Login Screen -->
+    <div id="authScreen" class="auth-wrapper">
+        <div class="card auth-card">
+            <div class="logo" style="text-align: center; margin-bottom: 1.5rem;">CORE<span>ADMIN</span></div>
+            <h2>Admin Sign In</h2>
+            <p style="color: var(--secondary); margin-bottom: 2rem;">Please enter credentials to manage records.</p>
+            <form id="loginForm" class="styled-form">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <input type="email" id="email" placeholder="admin@core.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Enter Portal</button>
+            </form>
+            <p id="loginError" class="error-msg">Invalid Credentials. Please try again.</p>
+        </div>
+    </div>
+
+    <!-- Admin Panel Content -->
+    <div id="adminPanel" style="display: none; width: 100%;">
+        <aside class="sidebar">
+            <div class="logo">CORE<span>ADMIN</span></div>
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-item">Public Dashboard</a>
+                <a href="admin.html" class="nav-item active">Management Tools</a>
+                <button id="logoutBtn" class="nav-item logout-link">Sign Out</button>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Database Management</h1>
+                <p>Add new entries or remove existing student/intern records.</p>
+            </header>
+
+            <div class="admin-grid">
+                <!-- Add Record Form -->
+                <section class="card">
+                    <div class="card-header">
+                        <h3>Add New Member</h3>
+                    </div>
+                    <form id="adminEntryForm" class="styled-form">
+                        <div class="input-group"><label>ID</label><input type="text" id="stuId" required></div>
+                        <div class="input-group"><label>Name</label><input type="text" id="stuName" required></div>
+                        <div class="input-group">
+                            <label>Member Type</label>
+                            <select id="stuType">
+                                <option value="Student">Student</option>
+                                <option value="Intern">Intern</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Domain</label>
+                            <select id="stuDept">
+                                <option value="Engineering">Engineering</option>
+                                <option value="Design">Design</option>
+                                <option value="Cyber Security">Cyber Security</option>
+                                <option value="Marketing">Marketing</option>
+                            </select>
+                        </div>
+                        <div class="input-group"><label>Attendance %</label><input type="number" id="stuAtt" required>
+                        </div>
+                        <div class="input-group"><label>Marks / Score</label><input type="number" id="stuMarks"
+                                required></div>
+                        <button type="submit" class="btn-primary" style="width: 100%;">Push to Firebase</button>
+                    </form>
+                </section>
+
+                <!-- Database View -->
+                <section class="card" style="padding: 0;">
+                    <div class="card-header" style="padding: 1.5rem; border-bottom: var(--border);">
+                        <h3>Live Database</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Member Name</th>
+                                    <th style="text-align: right;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminTableBody"></tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="firebase-config.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+
+</html>
