@@ -225,3 +225,19 @@ function getDomainData(students) {
         }]
     };
 }
+function getTypeData(students) {
+    const studentAvg = students.filter(s => s.type === 'Student');
+    const internAvg = students.filter(s => s.type === 'Intern');
+
+    const getAvg = (arr) => arr.length ? (arr.reduce((a, b) => a + parseInt(b.marks), 0) / arr.length).toFixed(1) : 0;
+
+    return {
+        labels: ['Students', 'Interns'],
+        datasets: [{
+            label: 'Avg Score',
+            data: [getAvg(studentAvg), getAvg(internAvg)],
+            backgroundColor: ['#3b82f6', '#8b5cf6'],
+            borderRadius: 8
+        }]
+    };
+}
