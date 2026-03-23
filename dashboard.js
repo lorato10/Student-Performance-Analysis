@@ -241,3 +241,60 @@ function getTypeData(students) {
         }]
     };
 }
+// --- ADMIN DATA INSERTION ---
+const adminForm = document.getElementById('adminForm'); // Ensure your form has this ID
+
+if (adminForm) {
+    adminForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Getting values from the admin form fields
+        const studentData = {
+            name: document.getElementById('stuName').value,
+            id: document.getElementById('stuId').value,
+            dept: document.getElementById('stuDept').value,
+            type: document.getElementById('stuType').value,
+            attendance: document.getElementById('stuAtt').value,
+            marks: document.getElementById('stuMarks').value,
+            timestamp: new Date().toISOString()
+        };
+
+        // Pushing data to the 'students' reference in Firebase
+        db.ref('students').push(studentData)
+            .then(() => {
+                alert("Data successfully pushed to Dashboard!");
+                adminForm.reset(); // Clear form after success
+            })
+            .catch((error) => {
+                console.error("Error pushing data: ", error);
+            });
+    });
+}
+
+// --- REAL-TIME DATA DISPLAY ---
+const tableBody = document.getElementById('studentTableBody'); // Target tbody in index.html
+
+db.ref('students').on('value', (snapshot) => {
+    if (tableBody) {
+        tableBody.innerHTML = ''; // Clear existing rows to prevent duplicates
+
+        snapshot.forEach((childSnapshot) => {
+            const data = childSnapshot.val();
+
+            // Create a new row for each student entry
+            const row = `
+                <tr>
+                    <td>${data.name}</td>
+                    <td>${data.id}</td>
+                    <td>${data.dept}</td>
+                    <td><span class="type-badge">${data.type}</span></td>
+                    <td>${data.attendance}%</td>
+                    <td><span class="status-pill ${parseInt(data.marks) >= 50 ? 'status-pass' : 'status-failed'}">
+                        ${data.marks}
+                    </span></td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
+        });
+    }
+});
