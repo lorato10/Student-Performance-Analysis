@@ -1,26 +1,38 @@
 const db = firebase.database();
 const auth = firebase.auth();
+let charts = {};
 
-// --- 1. AUTHENTICATION LOGIC ---
+// Global Chart.js configuration for Premium Dark Mode
+if (typeof Chart !== 'undefined') {
+    Chart.defaults.color = '#94a3b8'; 
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(15, 23, 42, 0.9)';
+    Chart.defaults.plugins.tooltip.titleColor = '#f8fafc';
+    Chart.defaults.plugins.tooltip.bodyColor = '#cbd5e1';
+    Chart.defaults.plugins.tooltip.borderColor = '#334155';
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.padding = 12;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    Chart.defaults.plugins.tooltip.displayColors = false;
+}
+
+// --- 1. AUTHENTICATION & UI ---
 const loginForm = document.getElementById('loginForm');
 if (loginForm) {
     loginForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const email = document.getElementById('email').value;
         const pass = document.getElementById('password').value;
-
-        auth.signInWithEmailAndPassword(email, pass)
-            .catch(err => {
-                const errBox = document.getElementById('loginError');
-                if (errBox) errBox.style.display = 'block';
-            });
+        auth.signInWithEmailAndPassword(email, pass).catch(err => {
+            const errBox = document.getElementById('loginError');
+            if (errBox) errBox.style.display = 'block';
+        });
     });
 }
 
 auth.onAuthStateChanged(user => {
     const authScreen = document.getElementById('authScreen');
     const adminPanel = document.getElementById('adminPanel');
-
     if (user) {
         if (authScreen) authScreen.style.display = 'none';
         if (adminPanel) adminPanel.style.display = 'flex';
@@ -32,25 +44,30 @@ auth.onAuthStateChanged(user => {
 
 document.getElementById('logoutBtn')?.addEventListener('click', () => auth.signOut());
 
-// --- 2. CORE DATA ENGINE (Real-time Sync) ---
-let charts = {}; // Store chart instances to prevent glitches
+// Mobile Menu Toggle Logic
+document.getElementById('menuToggle')?.addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+});
 
+// --- 2. THE REAL-TIME SYNC (Admin -> Public) ---
 db.ref('students').on('value', (snapshot) => {
-    const data = snapshot.val();
+    const data = snapshot.val() || {};
     const studentArray = [];
-
     for (let key in data) {
         studentArray.push({ ...data[key], firebaseKey: key });
     }
 
-    // Run all updates simultaneously
-    updateAdminTable(studentArray);
+    // Update all sections
     renderPublicDashboard(studentArray);
+    updateAdminTable(studentArray);
     updateAnalytics(studentArray);
 });
 
-// --- 3. ADMIN ACTIONS ---
+// --- 3. DATA ENTRY & MANAGEMENT ---
+let editingKey = null;
 const entryForm = document.getElementById('adminEntryForm');
+const submitBtn = entryForm?.querySelector('button[type="submit"]');
+
 if (entryForm) {
     entryForm.addEventListener('submit', (e) => {
         e.preventDefault();
@@ -58,17 +75,46 @@ if (entryForm) {
             id: document.getElementById('stuId').value,
             name: document.getElementById('stuName').value,
             type: document.getElementById('stuType').value,
-            dept: document.getElementById('stuDept').value, // Matches 'Domain'
+            dept: document.getElementById('stuDept').value,
+            duration: document.getElementById('stuDuration').value,
             attendance: document.getElementById('stuAtt').value,
-            marks: document.getElementById('stuMarks').value
+            marks: document.getElementById('stuMarks').value,
+            funds: document.getElementById('stuFunds').value
         };
 
-        db.ref('students').push(studentData).then(() => {
-            entryForm.reset();
-            alert("Data pushed to Firebase successfully!");
-        });
+        if (editingKey) {
+            db.ref('students').child(editingKey).update(studentData).then(() => {
+                entryForm.reset();
+                editingKey = null;
+                if (submitBtn) submitBtn.innerText = "Push to Dashboard";
+                alert("Record updated successfully!");
+            });
+        } else {
+            db.ref('students').push(studentData).then(() => {
+                entryForm.reset();
+                alert("Record added successfully!");
+            });
+        }
     });
 }
+
+window.editStudent = (key) => {
+    const student = allStudents.find(s => s.firebaseKey === key);
+    if (!student) return;
+
+    editingKey = key;
+    document.getElementById('stuId').value = student.id;
+    document.getElementById('stuName').value = student.name;
+    document.getElementById('stuType').value = student.type;
+    document.getElementById('stuDept').value = student.dept;
+    if (document.getElementById('stuDuration')) document.getElementById('stuDuration').value = student.duration || '';
+    document.getElementById('stuAtt').value = student.attendance;
+    document.getElementById('stuMarks').value = student.marks;
+    if (document.getElementById('stuFunds')) document.getElementById('stuFunds').value = student.funds || '';
+
+    if (submitBtn) submitBtn.innerText = "Update Record";
+    document.querySelector('.admin-grid').scrollIntoView({ behavior: 'smooth' });
+};
 
 window.deleteStudent = (key) => {
     if (confirm("Permanently delete this record?")) {
@@ -76,119 +122,190 @@ window.deleteStudent = (key) => {
     }
 };
 
-function updateAdminTable(students) {
-    const adminTable = document.getElementById('adminTableBody');
-    if (!adminTable) return;
-
-    adminTable.innerHTML = students.map(s => `
-        <tr>
-            <td>
-                <strong>${s.name}</strong><br>
-                <small style="color:var(--secondary)">${s.dept} | ${s.type}</small>
-            </td>
-            <td style="text-align: right;">
-                <button onclick="deleteStudent('${s.firebaseKey}')" 
-                        style="color:#ef4444; background:none; border:none; cursor:pointer; font-weight:600;">
-                    Delete
-                </button>
-            </td>
-        </tr>
-    `).join('');
-}
-
-// --- 4. PUBLIC DASHBOARD RENDERING ---
+// --- 4. PUBLIC DISPLAY LOGIC ---
+let allStudents = [];
 function renderPublicDashboard(students) {
+    allStudents = students; // Keep reference for search
     const tableBody = document.getElementById('publicTableBody');
-    const leaderboard = document.getElementById('leaderboard');
     if (!tableBody) return;
+
+    // Search Filtering
+    const searchTerm = document.getElementById('studentSearch')?.value.toLowerCase() || "";
+    const filtered = students.filter(s => {
+        const nameMatch = (s.name || "").toLowerCase().includes(searchTerm);
+        const idMatch = (s.id || "").toLowerCase().includes(searchTerm);
+        const deptMatch = (s.dept || "").toLowerCase().includes(searchTerm);
+        const durMatch = (s.duration || "").toLowerCase().includes(searchTerm);
+        return nameMatch || idMatch || deptMatch || durMatch;
+    });
+
+    // Update Filter Status text
+    const filterStatus = document.getElementById('filterStatus');
+    if (filterStatus) {
+        filterStatus.innerText = searchTerm ? `Results for "${searchTerm}"` : "Showing all members";
+    }
 
     let totalAttendance = 0;
     let uniqueDepts = new Set();
-    let tableRows = "";
 
-    students.forEach(s => {
+    tableBody.innerHTML = filtered.map(s => {
         totalAttendance += parseInt(s.attendance || 0);
         uniqueDepts.add(s.dept);
+        const marks = parseInt(s.marks || 0);
+        const status = marks >= 50 ? "Pass" : "Fail";
+        const sClass = status.toLowerCase();
 
-        // Define status based on performance
-        let status = "Pass", sClass = "status-pass";
-        if (parseInt(s.marks) < 50) {
-            status = "Failed"; sClass = "status-failed";
-        } else if (parseInt(s.attendance) < 75) {
-            status = "Inactive"; sClass = "status-inactive";
-        }
-
-        tableRows += `
+        return `
             <tr>
                 <td>${s.id}</td>
                 <td><strong>${s.name}</strong></td>
                 <td><span class="type-badge">${s.type}</span></td>
                 <td>${s.dept}</td>
+                <td>${s.duration || '-'}</td>
                 <td>${s.attendance}%</td>
                 <td>${s.marks}</td>
-                <td><span class="status-pill ${sClass}">${status}</span></td>
+                <td><span class="status-pill status-${sClass}">${status}</span></td>
             </tr>`;
+    }).join('');
+
+    // Update KPI Cards (based on full student list)
+    if (document.getElementById('totalCount')) document.getElementById('totalCount').innerText = students.length;
+    if (document.getElementById('avgAtt')) {
+        const avg = students.length ? Math.round(students.reduce((acc, curr) => acc + parseInt(curr.attendance || 0), 0) / students.length) : 0;
+        document.getElementById('avgAtt').innerText = avg + "%";
+    }
+    if (document.getElementById('deptCount')) {
+        const depts = new Set(students.map(s => s.dept));
+        document.getElementById('deptCount').innerText = depts.size;
+    }
+
+    // --- Financial Tracker Logic ---
+    let totalFees = 0;
+    let totalEarnings = 0;
+    
+    filtered.forEach(s => {
+        const amount = parseFloat(s.funds || 0);
+        if (s.type === 'Student') totalFees += amount;
+        if (s.type === 'Intern') totalEarnings += amount;
     });
 
-    tableBody.innerHTML = tableRows;
+    if (document.getElementById('totalFees')) document.getElementById('totalFees').innerText = '₹' + totalFees.toLocaleString('en-IN');
+    if (document.getElementById('totalEarnings')) document.getElementById('totalEarnings').innerText = '₹' + totalEarnings.toLocaleString('en-IN');
+    if (document.getElementById('netBalance')) {
+        const net = totalFees - totalEarnings;
+        const netEl = document.getElementById('netBalance');
+        netEl.innerText = '₹' + Math.abs(net).toLocaleString('en-IN');
+        netEl.innerText = (net < 0 ? '-' : '') + netEl.innerText;
+        netEl.style.color = net >= 0 ? '#16a34a' : '#ef4444';
+    }
 
-    // Update KPI Cards
-    const totalCountEl = document.getElementById('totalCount');
-    const avgAttEl = document.getElementById('avgAtt');
-    const deptCountEl = document.getElementById('deptCount');
+    const financialTable = document.getElementById('financialTableBody');
+    if (financialTable) {
+        financialTable.innerHTML = filtered.map(s => {
+            const amount = parseFloat(s.funds || 0).toLocaleString('en-IN');
+            return `
+                <tr>
+                    <td>${s.id}</td>
+                    <td><strong>${s.name}</strong></td>
+                    <td><span class="type-badge">${s.type}</span></td>
+                    <td>${s.dept}</td>
+                    <td style="text-align: right; font-weight: 600; color: ${s.type === 'Student' ? '#16a34a' : '#ef4444'};">₹${amount}</td>
+                </tr>`;
+        }).join('');
+    }
 
-    if (totalCountEl) totalCountEl.innerText = students.length;
-    if (avgAttEl) avgAttEl.innerText = students.length > 0
-        ? Math.round(totalAttendance / students.length) + "%"
-        : "0%";
-    if (deptCountEl) deptCountEl.innerText = uniqueDepts.size;
-
-    // Update Elite Performers (Top 5)
+    // Update Leaderboard (Top 5)
+    const leaderboard = document.getElementById('leaderboard');
     if (leaderboard) {
-        const topPerformers = [...students].sort((a, b) => {
-            const scoreA = (parseInt(a.attendance) + parseInt(a.marks)) / 2;
-            const scoreB = (parseInt(b.attendance) + parseInt(b.marks)) / 2;
-            return scoreB - scoreA;
-        }).slice(0, 5);
-
-        leaderboard.innerHTML = topPerformers.map((s, i) => `
+        const top5 = [...students].sort((a, b) => parseInt(b.marks || 0) - parseInt(a.marks || 0)).slice(0, 5);
+        leaderboard.innerHTML = top5.map((s, i) => `
             <div class="rank-item">
-                <div class="rank-number">${i + 1}</div>
+                <div class="rank-number">#${i + 1}</div>
                 <div class="rank-info">
-                    <strong>${s.name}</strong>
-                    <span>${s.type} • ${s.dept}</span>
+                    <div class="rank-name">${s.name}</div>
+                    <div class="rank-meta">${s.dept} • ${s.type}</div>
                 </div>
-                <div class="rank-score">${Math.round((parseInt(s.attendance) + parseInt(s.marks)) / 2)}</div>
+                <div class="rank-score">${s.marks}</div>
             </div>
         `).join('');
     }
 }
 
-// --- 5. ANALYTICS ENGINE ---
+// Search Listener
+document.getElementById('studentSearch')?.addEventListener('input', () => {
+    renderPublicDashboard(allStudents);
+});
+
+function updateAdminTable(students) {
+    const adminTable = document.getElementById('adminTableBody');
+    if (!adminTable) return;
+    adminTable.innerHTML = students.map(s => `
+        <tr>
+            <td><strong>${s.name}</strong><br><small>${s.id} | ${s.dept}</small></td>
+            <td style="text-align: right;">
+                <button onclick="editStudent('${s.firebaseKey}')" style="color:#d4af37; background:none; border:none; cursor:pointer; font-weight: 500; margin-right: 1rem;">Edit</button>
+                <button onclick="deleteStudent('${s.firebaseKey}')" style="color:#ef4444; background:none; border:none; cursor:pointer; font-weight: 500;">Delete</button>
+            </td>
+        </tr>`).join('');
+}
+
+// --- 5. CHARTS ---
 function updateAnalytics(students) {
+    if (!students || students.length === 0) return;
+    
+    // Per-chart dynamic configuration map
     const config = [
-        { id: 'statusDistributionChart', type: 'doughnut', getData: getStatusData },
-        { id: 'domainPerformanceChart', type: 'bar', getData: getDomainData }
+        { 
+            id: 'statusDistributionChart', 
+            type: 'doughnut', 
+            func: getStatusData,
+            options: { cutout: '75%' } // Thin, elegant rim
+        },
+        { 
+            id: 'domainPerformanceChart', 
+            type: 'polarArea', 
+            func: getDomainData,
+            options: {
+                scales: { 
+                    r: { ticks: { display: false }, grid: { color: 'rgba(51, 65, 85, 0.4)' } } 
+                }
+            }
+        },
+        { 
+            id: 'typeComparisonChart', 
+            type: 'bar', 
+            func: getTypeData,
+            options: {
+                indexAxis: 'y', // Turns it into a sleek Horizontal Bar Chart
+                scales: {
+                    x: { grid: { color: 'rgba(51, 65, 85, 0.4)' }, ticks: { padding: 10 } },
+                    y: { grid: { display: false } }
+                }
+            }
+        }
     ];
 
-    config.forEach(chartConf => {
-        const ctx = document.getElementById(chartConf.id)?.getContext('2d');
-        if (!ctx) return;
-
-        // Destroy existing chart to allow data refresh without glitches
-        if (charts[chartConf.id]) charts[chartConf.id].destroy();
-
-        charts[chartConf.id] = new Chart(ctx, {
-            type: chartConf.type,
-            data: chartConf.getData(students),
-            options: {
-                responsive: true,
+    config.forEach(c => {
+        const el = document.getElementById(c.id);
+        if (!el) return;
+        if (charts[c.id]) charts[c.id].destroy();
+        charts[c.id] = new Chart(el.getContext('2d'), {
+            type: c.type,
+            data: c.func(students),
+            options: { 
+                responsive: true, 
                 maintainAspectRatio: false,
+                animation: {
+                    duration: 2500,
+                    easing: 'easeOutQuart'
+                },
                 plugins: {
-                    legend: {
-                        labels: { color: '#64748b' } // Adjust label color for UI consistency
+                    legend: { 
+                        position: 'bottom',
+                        labels: { padding: 20, font: { size: 13, weight: 500 }, usePointStyle: true }
                     }
-                }
+                },
+                ...c.options // Inherit specialized overrides
             }
         });
     });
@@ -196,13 +313,14 @@ function updateAnalytics(students) {
 
 function getStatusData(students) {
     const pass = students.filter(s => parseInt(s.marks) >= 50).length;
-    const fail = students.length - pass;
     return {
         labels: ['Pass', 'Fail'],
-        datasets: [{
-            data: [pass, fail],
-            backgroundColor: ['#22c55e', '#ef4444'],
-            borderWidth: 0
+        datasets: [{ 
+            data: [pass, students.length - pass], 
+            backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)'], 
+            borderWidth: 5,
+            borderColor: '#1e293b',
+            hoverOffset: 8
         }]
     };
 }
@@ -211,90 +329,44 @@ function getDomainData(students) {
     const domains = {};
     students.forEach(s => {
         if (!domains[s.dept]) domains[s.dept] = { total: 0, count: 0 };
-        domains[s.dept].total += parseInt(s.marks);
+        domains[s.dept].total += parseInt(s.marks || 0);
         domains[s.dept].count++;
     });
+    
+    const paletteBg = [
+        'rgba(212, 175, 55, 0.8)', 'rgba(56, 189, 248, 0.8)', 
+        'rgba(167, 139, 250, 0.8)', 'rgba(244, 63, 94, 0.8)', 
+        'rgba(16, 185, 129, 0.8)'
+    ];
+    const paletteBorder = ['#d4af37', '#38bdf8', '#a78bfa', '#f43f5e', '#10b981'];
 
     return {
         labels: Object.keys(domains),
-        datasets: [{
-            label: 'Avg Score',
-            data: Object.values(domains).map(d => Math.round(d.total / d.count)),
-            backgroundColor: '#2563eb',
-            borderRadius: 4
+        datasets: [{ 
+            label: 'Avg Marks', 
+            data: Object.values(domains).map(d => Math.round(d.total / d.count)), 
+            backgroundColor: paletteBg.slice(0, Object.keys(domains).length), 
+            borderColor: paletteBorder.slice(0, Object.keys(domains).length),
+            borderWidth: 2
         }]
     };
 }
+
 function getTypeData(students) {
-    const studentAvg = students.filter(s => s.type === 'Student');
-    const internAvg = students.filter(s => s.type === 'Intern');
-
-    const getAvg = (arr) => arr.length ? (arr.reduce((a, b) => a + parseInt(b.marks), 0) / arr.length).toFixed(1) : 0;
-
+    const getAvg = (type) => {
+        const filtered = students.filter(s => s.type === type);
+        return filtered.length ? (filtered.reduce((a, b) => a + parseInt(b.marks || 0), 0) / filtered.length).toFixed(1) : 0;
+    };
     return {
         labels: ['Students', 'Interns'],
-        datasets: [{
-            label: 'Avg Score',
-            data: [getAvg(studentAvg), getAvg(internAvg)],
-            backgroundColor: ['#3b82f6', '#8b5cf6'],
-            borderRadius: 8
+        datasets: [{ 
+            label: 'Avg Score', 
+            data: [getAvg('Student'), getAvg('Intern')], 
+            backgroundColor: ['rgba(56, 189, 248, 0.85)', 'rgba(167, 139, 250, 0.85)'], 
+            borderColor: ['#38bdf8', '#a78bfa'],
+            borderWidth: 2,
+            borderRadius: 8,
+            barThickness: 36
         }]
     };
-}
-// --- ADMIN DATA INSERTION ---
-const adminForm = document.getElementById('adminForm'); // Ensure your form has this ID
-
-if (adminForm) {
-    adminForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-
-        // Getting values from the admin form fields
-        const studentData = {
-            name: document.getElementById('stuName').value,
-            id: document.getElementById('stuId').value,
-            dept: document.getElementById('stuDept').value,
-            type: document.getElementById('stuType').value,
-            attendance: document.getElementById('stuAtt').value,
-            marks: document.getElementById('stuMarks').value,
-            timestamp: new Date().toISOString()
-        };
-
-        // Pushing data to the 'students' reference in Firebase
-        db.ref('students').push(studentData)
-            .then(() => {
-                alert("Data successfully pushed to Dashboard!");
-                adminForm.reset(); // Clear form after success
-            })
-            .catch((error) => {
-                console.error("Error pushing data: ", error);
-            });
-    });
-}
-
-// --- REAL-TIME DATA DISPLAY ---
-const tableBody = document.getElementById('studentTableBody'); // Target tbody in index.html
-
-db.ref('students').on('value', (snapshot) => {
-    if (tableBody) {
-        tableBody.innerHTML = ''; // Clear existing rows to prevent duplicates
-
-        snapshot.forEach((childSnapshot) => {
-            const data = childSnapshot.val();
-
-            // Create a new row for each student entry
-            const row = `
-                <tr>
-                    <td>${data.name}</td>
-                    <td>${data.id}</td>
-                    <td>${data.dept}</td>
-                    <td><span class="type-badge">${data.type}</span></td>
-                    <td>${data.attendance}%</td>
-                    <td><span class="status-pill ${parseInt(data.marks) >= 50 ? 'status-pass' : 'status-failed'}">
-                        ${data.marks}
-                    </span></td>
-                </tr>
-            `;
-            tableBody.innerHTML += row;
-        });
-    }
-});
+}

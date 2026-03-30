@@ -1,11 +1,11 @@
 :root {
-    --primary: #2563eb;
-    --secondary: #64748b;
-    --bg-main: #f8fafc;
-    --sidebar-bg: #ffffff;
+    --primary: #d4af37;
+    --secondary: #94a3b8;
+    --bg-main: #0f172a;
+    --sidebar-bg: #1e293b;
     --sidebar-width: 260px;
-    --card-bg: #ffffff;
-    --border: 1px solid #e2e8f0;
+    --card-bg: #1e293b;
+    --border: 1px solid #334155;
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -18,9 +18,8 @@
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-main);
-    color: #1e293b;
+    color: #f8fafc;
     display: flex;
-    /* Sidebar and Main side-by-side */
 }
 
 /* --- Sidebar --- */
@@ -65,7 +64,7 @@ body {
 
 .nav-item:hover,
 .nav-item.active {
-    background: #eff6ff;
+    background: #334155;
     color: var(--primary);
 }
 
@@ -94,7 +93,7 @@ body {
     border: var(--border);
     border-radius: 12px;
     padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
 }
 
 /* --- Mobile Logic --- */
@@ -104,37 +103,42 @@ body {
     left: 20px;
     z-index: 2000;
     background: var(--primary);
-    color: white;
+    color: #0f172a;
     border: none;
     padding: 10px;
     border-radius: 8px;
     cursor: pointer;
     display: none;
-    /* Desktop hidden */
 }
 
 @media (max-width: 1024px) {
     .menu-toggle {
-        display: block;
+        display: flex !important;
     }
 
     .sidebar {
         transform: translateX(-100%);
+        transition: 0.3s ease;
     }
 
     .sidebar.open {
         transform: translateX(0);
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.1);
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
     }
 
     .main-content {
-        margin-left: 0;
-        width: 100%;
+        margin-left: 0 !important;
+        width: 100% !important;
         padding-top: 5rem;
     }
 
     .admin-grid {
         grid-template-columns: 1fr;
+    }
+
+    .kpi-grid,
+    .charts-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -171,7 +175,6 @@ body {
 .chart-wrapper {
     position: relative;
     height: 300px;
-    /* Constrains the chart size */
     width: 100%;
 }
 
@@ -186,9 +189,12 @@ body {
     padding: 0.8rem 1.2rem;
     border-radius: 8px;
     border: var(--border);
+    background: var(--bg-main);
+    color: var(--primary);
     width: 300px;
     font-family: inherit;
 }
+#studentSearch::placeholder { color: var(--secondary); }
 
 /* Table Enhancements */
 .table-container {
@@ -203,11 +209,12 @@ table {
 th {
     text-align: left;
     padding: 1rem;
-    background: #f1f5f9;
+    background: var(--bg-main);
     color: var(--secondary);
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    border-bottom: var(--border);
 }
 
 td {
@@ -222,7 +229,7 @@ td {
     height: 100vh;
     align-items: center;
     justify-content: center;
-    background: #f1f5f9;
+    background: var(--bg-main);
 }
 
 .auth-card {
@@ -232,7 +239,7 @@ td {
 }
 
 .error-msg {
-    color: #ef4444;
+    color: #f87171;
     margin-top: 1rem;
     display: none;
     font-size: 0.9rem;
@@ -265,6 +272,8 @@ td {
     padding: 0.75rem 1rem;
     border-radius: 8px;
     border: var(--border);
+    background: var(--bg-main);
+    color: #f8fafc;
     font-family: inherit;
     font-size: 1rem;
     transition: var(--transition);
@@ -273,16 +282,16 @@ td {
 .input-group input:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .btn-primary {
     background: var(--primary);
-    color: white;
+    color: #0f172a;
     border: none;
     padding: 0.85rem;
     border-radius: 8px;
-    font-weight: 600;
+    font-weight: 700;
     cursor: pointer;
     transition: var(--transition);
 }
@@ -292,84 +301,15 @@ td {
 }
 
 .logout-link {
-    color: #ef4444 !important;
+    color: #f87171 !important;
     margin-top: auto;
 }
 
 .logout-link:hover {
-    background: #fef2f2 !important;
+    background: #451a1a !important;
 }
 
 /* Status Pills */
-.status-pill {
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-}
-
-.status-pass {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.status-failed {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
-.status-active {
-    background: #e0f2fe;
-    color: #075985;
-}
-
-/* Type Badge */
-.type-badge {
-    color: var(--secondary);
-    font-size: 0.8rem;
-    border: 1px solid #e2e8f0;
-    padding: 2px 8px;
-    border-radius: 4px;
-}
-
-/* Rankings List */
-.rank-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 0;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.rank-number {
-    width: 32px;
-    height: 32px;
-    background: var(--primary);
-    color: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 700;
-}
-
-.rank-info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.rank-info span {
-    font-size: 0.8rem;
-    color: var(--secondary);
-}
-
-.rank-score {
-    font-weight: 700;
-    color: var(--primary);
-}
-
-/* Status Badge Styling */
 .status-pill {
     padding: 0.25rem 0.75rem;
     border-radius: 1rem;
@@ -379,36 +319,36 @@ td {
 }
 
 .status-pass {
-    background: #dcfce7;
-    color: #166534;
+    background: #064e3b;
+    color: #34d399;
 }
 
 .status-failed {
-    background: #fee2e2;
-    color: #991b1b;
+    background: #7f1d1d;
+    color: #f87171;
 }
 
 .status-active {
-    background: #e0f2fe;
-    color: #075985;
+    background: #1e3a8a;
+    color: #60a5fa;
 }
 
 .status-inactive {
-    background: #f1f5f9;
-    color: #475569;
+    background: #334155;
+    color: #94a3b8;
 }
 
-/* Member Type Badge */
+/* Type Badge */
 .type-badge {
     color: var(--secondary);
     font-size: 0.8rem;
     border: 1px solid var(--border);
     padding: 2px 8px;
     border-radius: 4px;
-    background: #fff;
+    background: var(--bg-main);
 }
 
-/* Leaderboard Ranking Styles */
+/* Rankings List */
 .rank-list {
     display: flex;
     flex-direction: column;
@@ -421,7 +361,7 @@ td {
     align-items: center;
     gap: 1rem;
     padding: 0.75rem;
-    background: #f8fafc;
+    background: var(--bg-main);
     border-radius: 8px;
     border: 1px solid var(--border);
 }
@@ -430,7 +370,7 @@ td {
     width: 28px;
     height: 28px;
     background: var(--primary);
-    color: white;
+    color: #0f172a;
     border-radius: 50%;
     display: flex;
     align-items: center;

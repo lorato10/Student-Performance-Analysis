@@ -4,13 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Core Analytics | Dashboard</title>
+    <title>Excellence Web Service | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <link rel="stylesheet" href="style.css">
     <script src="firebase-config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -26,7 +27,37 @@
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
-        <div class="logo">CORE<span>ANALYTICS</span></div>
+        <div class="logo" style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
+            <div class="logo-icon" style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="100%" height="100%" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#fef08a" />
+                            <stop offset="50%" stop-color="#d4af37" />
+                            <stop offset="100%" stop-color="#a16207" />
+                        </linearGradient>
+                    </defs>
+                    <path d="M 32 60 C 14 60, 6 46, 6 32 C 6 22, 12 14, 18 10" fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M 12 48 C 10 44, 6 42, 6 42 C 6 42, 10 42, 12 46 Z" fill="url(#goldGradient)"/>
+                    <path d="M 8 38 C 6 34, 4 30, 4 30 C 4 30, 8 32, 10 36 Z" fill="url(#goldGradient)"/>
+                    <path d="M 8 26 C 6 22, 5 18, 5 18 C 5 18, 9 20, 10 24 Z" fill="url(#goldGradient)"/>
+                    <path d="M 12 16 C 10 12, 10 8, 10 8 C 10 8, 14 10, 14 14 Z" fill="url(#goldGradient)"/>
+                    <path d="M 32 60 C 50 60, 58 46, 58 32 C 58 22, 52 14, 46 10" fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
+                    <path d="M 52 48 C 54 44, 58 42, 58 42 C 58 42, 54 42, 52 46 Z" fill="url(#goldGradient)"/>
+                    <path d="M 56 38 C 58 34, 60 30, 60 30 C 60 30, 56 32, 54 36 Z" fill="url(#goldGradient)"/>
+                    <path d="M 56 26 C 58 22, 59 18, 59 18 C 59 18, 55 20, 54 24 Z" fill="url(#goldGradient)"/>
+                    <path d="M 52 16 C 54 12, 54 8, 54 8 C 54 8, 50 10, 50 14 Z" fill="url(#goldGradient)"/>
+                    <path d="M 32 4 L 33.5 8 L 38 8 L 34.5 10.5 L 36 15 L 32 12.5 L 28 15 L 29.5 10.5 L 26 8 L 30.5 8 Z" fill="url(#goldGradient)"/>
+                    <path d="M 20 8 L 21 11 L 24 11 L 21.5 13 L 22.5 16 L 20 14 L 17.5 16 L 18.5 13 L 16 11 L 19 11 Z" fill="url(#goldGradient)"/>
+                    <path d="M 44 8 L 45 11 L 48 11 L 45.5 13 L 46.5 16 L 44 14 L 41.5 16 L 42.5 13 L 40 11 L 43 11 Z" fill="url(#goldGradient)"/>
+                    <text x="32" y="46" font-family="Inter, sans-serif" font-weight="900" font-size="36" fill="url(#goldGradient)" text-anchor="middle">E</text>
+                </svg>
+            </div>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px;">
+                <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
+                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">Web Service</span>
+            </div>
+        </div>
         <nav class="nav-menu">
             <a href="index.html" class="nav-item active">Public Dashboard</a>
             <a href="admin.html" class="nav-item">Admin Portal (Login)</a>
@@ -41,7 +72,7 @@
                     <p>Real-time view of members, students, and interns.</p>
                 </div>
                 <div class="search-container">
-                    <input type="text" id="studentSearch" placeholder="Search by name, ID, or domain...">
+                    <input type="text" id="studentSearch" placeholder="Search by name, ID, domain, or duration...">
                 </div>
             </div>
         </header>
@@ -74,10 +105,7 @@
                 </div>
             </section>
 
-            <section class="card">
-                <h3>Domain Distribution</h3>
-                <div class="chart-wrapper"><canvas id="domainChart"></canvas></div>
-            </section>
+
         </div>
 
         <!-- Comprehensive Member Roster -->
@@ -94,6 +122,7 @@
                             <th>Name</th>
                             <th>Type</th>
                             <th>Domain</th>
+                            <th>Duration</th>
                             <th>Attendance</th>
                             <th>Marks</th>
                             <th>Status</th>
@@ -105,6 +134,52 @@
                 </table>
             </div>
         </section>
+
+        <!-- FINANCIAL TRACKER SECTION -->
+        <br>
+        <header class="content-header">
+            <h2>Financial Overview</h2>
+            <p>Track school fees paid by students and salary amounts earned by employees.</p>
+        </header>
+        
+        <div class="kpi-grid">
+            <div class="card" style="border-left: 4px solid #16a34a;">
+                <h3>Total Revenue (Fees)</h3>
+                <p id="totalFees" class="kpi-value" style="color: #16a34a;">₹0</p>
+            </div>
+            <div class="card" style="border-left: 4px solid #ef4444;">
+                <h3>Total Expenses (Salary)</h3>
+                <p id="totalEarnings" class="kpi-value" style="color: #ef4444;">₹0</p>
+            </div>
+            <div class="card" style="border-left: 4px solid var(--primary);">
+                <h3>Net Balance</h3>
+                <p id="netBalance" class="kpi-value">₹0</p>
+            </div>
+        </div>
+
+        <section class="card roster-section">
+            <div class="card-header">
+                <h2>Financial Records</h2>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Role</th>
+                            <th>Domain</th>
+                            <th style="text-align: right;">Amount (₹)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="financialTableBody">
+                        <!-- Data flows from dashboard.js -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        <!-- END FINANCIAL TRACKER SECTION -->
+
         <br>
         <header class="content-header">
             <h2>Detailed Performance Insights</h2>
@@ -134,8 +209,8 @@
         </div>
     </main>
 
-    <script src="firebase-config.js"></script>
     <script src="dashboard.js"></script>
+
 </body>
 
 </html>
