@@ -54,7 +54,11 @@ db.ref('students').on('value', (snapshot) => {
     const data = snapshot.val() || {};
     const studentArray = [];
     for (let key in data) {
-        studentArray.push({ ...data[key], firebaseKey: key });
+        let studentData = { ...data[key], firebaseKey: key };
+        // Map legacy domains for seamless UI transition
+        if (studentData.dept === 'Engineering') studentData.dept = 'Full Stack';
+        if (studentData.dept === 'Cyber Security') studentData.dept = 'Data Analysis';
+        studentArray.push(studentData);
     }
 
     // Update all sections
@@ -221,9 +225,9 @@ function renderPublicDashboard(students) {
         leaderboard.innerHTML = top5.map((s, i) => `
             <div class="rank-item">
                 <div class="rank-number">#${i + 1}</div>
-                <div class="rank-info">
-                    <div class="rank-name">${s.name}</div>
-                    <div class="rank-meta">${s.dept} • ${s.type}</div>
+                <div class="rank-info" style="line-height: 1.4;">
+                    <span style="font-weight: 600; font-size: 0.95rem; color: #f8fafc;">${s.name}</span><br>
+                    <span style="font-size: 0.75rem; color: var(--secondary);">${s.dept} • ${s.type}</span>
                 </div>
                 <div class="rank-score">${s.marks}</div>
             </div>
@@ -336,9 +340,10 @@ function getDomainData(students) {
     const paletteBg = [
         'rgba(212, 175, 55, 0.8)', 'rgba(56, 189, 248, 0.8)', 
         'rgba(167, 139, 250, 0.8)', 'rgba(244, 63, 94, 0.8)', 
-        'rgba(16, 185, 129, 0.8)'
+        'rgba(16, 185, 129, 0.8)', 'rgba(249, 115, 22, 0.8)',
+        'rgba(236, 72, 153, 0.8)'
     ];
-    const paletteBorder = ['#d4af37', '#38bdf8', '#a78bfa', '#f43f5e', '#10b981'];
+    const paletteBorder = ['#d4af37', '#38bdf8', '#a78bfa', '#f43f5e', '#10b981', '#f97316', '#ec4899'];
 
     return {
         labels: Object.keys(domains),
