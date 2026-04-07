@@ -57,8 +57,8 @@
                     <span style="color: var(--primary); font-size: 1.1rem; font-weight: 700;">Web Service</span>
                 </div>
             </div>
-            <h2>Admin Sign In</h2>
-            <p style="color: var(--secondary); margin-bottom: 2rem;">Please enter credentials to manage records.</p>
+            <h2>System Administrator Authentication</h2>
+            <p style="color: var(--secondary); margin-bottom: 2rem;">Please enter credentials to manage system registry.</p>
             <form id="loginForm" class="styled-form">
                 <div class="input-group">
                     <label>Email Address</label>
@@ -109,36 +109,36 @@
                 </div>
             </div>
             <nav class="nav-menu">
-                <a href="index.html" class="nav-item">Public Dashboard</a>
-                <a href="admin.html" class="nav-item active">Management Tools</a>
+                <a href="index.html" class="nav-item">Global Telemetry</a>
+                <a href="admin.html" class="nav-item active">System Registry Operations</a>
                 <button id="logoutBtn" class="nav-item logout-link">Sign Out</button>
             </nav>
         </aside>
 
         <main class="main-content">
             <header class="content-header">
-                <h1>Database Management</h1>
-                <p>Add new entries or remove existing student/intern records.</p>
+                <h1>System Registry Operations</h1>
+                <p>Provision new entities or deprecate existing ones.</p>
             </header>
 
             <div class="admin-grid">
                 <!-- Add Record Form -->
                 <section class="card">
                     <div class="card-header">
-                        <h3>Add New Member</h3>
+                        <h3>Resource Provisioning</h3>
                     </div>
                     <form id="adminEntryForm" class="styled-form">
                         <div class="input-group"><label>ID</label><input type="text" id="stuId" required></div>
-                        <div class="input-group"><label>Name</label><input type="text" id="stuName" required></div>
+                        <div class="input-group"><label>Entity Name</label><input type="text" id="stuName" required></div>
                         <div class="input-group">
-                            <label>Member Type</label>
+                            <label>Contract Type</label>
                             <select id="stuType">
                                 <option value="Student">Student</option>
                                 <option value="Intern">Intern</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Domain</label>
+                            <label>Functional Unit</label>
                             <select id="stuDept">
                                 <option value="Full Stack">Full Stack</option>
                                 <option value="Front End Developer">Front End Developer</option>
@@ -148,26 +148,26 @@
                                 <option value="Marketing">Marketing</option>
                             </select>
                         </div>
-                        <div class="input-group"><label>Duration</label><input type="text" id="stuDuration" placeholder="e.g. 6 Months" required></div>
-                        <div class="input-group"><label>Attendance %</label><input type="number" id="stuAtt" required>
+                        <div class="input-group"><label>Tenure</label><input type="text" id="stuDuration" placeholder="e.g. 6 Months" required></div>
+                        <div class="input-group"><label>Availability %</label><input type="number" id="stuAtt" required>
                         </div>
-                        <div class="input-group"><label>Marks / Score</label><input type="number" id="stuMarks"
+                        <div class="input-group"><label>Performance Metric</label><input type="number" id="stuMarks"
                                 required></div>
-                        <div class="input-group"><label>Amount (Fees / Salary ₹)</label><input type="number" id="stuFunds" required></div>
-                        <button type="submit" class="btn-primary" style="width: 100%;">Push to Dashboard</button>
+                        <div class="input-group"><label>Fiscal Allocation (₹)</label><input type="number" id="stuFunds" required></div>
+                        <button type="submit" class="btn-primary" style="width: 100%;">Deploy Provisioning</button>
                     </form>
                 </section>
 
                 <!-- Database View -->
                 <section class="card" style="padding: 0;">
                     <div class="card-header" style="padding: 1.5rem; border-bottom: var(--border);">
-                        <h3>Live Database</h3>
+                        <h3>Active Entity Registry</h3>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Member Name</th>
+                                    <th>Entity Identifier</th>
                                     <th style="text-align: right;">Action</th>
                                 </tr>
                             </thead>

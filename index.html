@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="style.css">
     <script src="firebase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
@@ -68,11 +70,12 @@
         <header class="content-header">
             <div class="header-flex">
                 <div>
-                    <h1>Performance Analytics</h1>
-                    <p>Real-time view of members, students, and interns.</p>
+                    <h1>Performance Telemetry</h1>
+                    <p>Real-time view of resources, contracts, and availability.</p>
                 </div>
                 <div class="search-container" style="display: flex; gap: 1rem; align-items: center;">
-                    <input type="text" id="studentSearch" placeholder="Search by name, ID, domain, or duration...">
+                    <input type="text" id="studentSearch" placeholder="Search by name, ID, functional unit...">
+                    <button class="btn-primary" style="background: #10B981; color: white;" onclick="exportAuditPDF()">Generate PDF</button>
                     <a href="admin.html" class="btn-primary" style="text-decoration: none; white-space: nowrap; display: flex; align-items: center; gap: 8px;">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                         Admin Portal
@@ -84,15 +87,15 @@
         <!-- KPI Stats -->
         <div class="kpi-grid">
             <div class="card">
-                <h3>Total Members</h3>
+                <h3>Total Headcount</h3>
                 <p id="totalCount" class="kpi-value">0</p>
             </div>
             <div class="card">
-                <h3>Avg Attendance</h3>
+                <h3>Mean Availability</h3>
                 <p id="avgAtt" class="kpi-value">0%</p>
             </div>
             <div class="card">
-                <h3>Active Domains</h3>
+                <h3>Functional Units</h3>
                 <p id="deptCount" class="kpi-value">0</p>
             </div>
         </div>
@@ -101,34 +104,33 @@
         <div class="charts-grid">
             <section class="card">
                 <div class="card-header">
-                    <h3>🏆 Elite Performers (Top 5)</h3>
-                    <span style="font-size: 0.8rem; color: var(--secondary);">Ranked by Avg Performance</span>
+                    <h3>🏆 Top Quartile Achievers</h3>
+                    <span style="font-size: 0.8rem; color: var(--secondary);">Ranked by Mean Performance</span>
                 </div>
                 <div class="rank-list" id="leaderboard">
                     <!-- Javascript populates this -->
                 </div>
             </section>
-
-
         </div>
 
         <!-- Comprehensive Member Roster -->
         <section class="card roster-section">
             <div class="card-header">
-                <h2>Member Roster</h2>
-                <div id="filterStatus">Showing all members</div>
+                <h2>Human Capital Registry</h2>
+                <div id="filterStatus">Showing all active resources</div>
             </div>
             <div class="table-container">
                 <table>
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Domain</th>
-                            <th>Duration</th>
-                            <th>Attendance</th>
-                            <th>Marks</th>
+                            <th>Entity Name</th>
+                            <th>Contract Type</th>
+                            <th>Functional Unit</th>
+                            <th>Tenure</th>
+                            <th>Availability</th>
+                            <th>Performance Metric</th>
+                            <th>Risk Profile</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -142,8 +144,8 @@
         <!-- FINANCIAL TRACKER SECTION -->
         <br>
         <header class="content-header">
-            <h2>Financial Overview</h2>
-            <p>Track school fees paid by students and salary amounts earned by employees.</p>
+            <h2>Financial Telemetry</h2>
+            <p>Fiscal records of organizational expenditures and receivables.</p>
         </header>
         
         <div class="kpi-grid">
@@ -170,9 +172,9 @@
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
+                            <th>Entity Name</th>
                             <th>Role</th>
-                            <th>Domain</th>
+                            <th>Functional Unit</th>
                             <th style="text-align: right;">Amount (₹)</th>
                         </tr>
                     </thead>
@@ -186,8 +188,8 @@
 
         <br>
         <header class="content-header">
-            <h2>Detailed Performance Insights</h2>
-            <p>Advanced metrics and comparative analytics.</p>
+            <h2>Advanced Telemetry Insights</h2>
+            <p>Predictive metrics and comparative analytics.</p>
         </header>
         <br>
         <div class="charts-grid">
@@ -196,19 +198,19 @@
                 <div class="chart-wrapper"><canvas id="statusDistributionChart"></canvas></div>
             </section>
             <section class="card">
-                <h3>Average Marks by Domain</h3>
-                <div class="chart-wrapper"><canvas id="domainPerformanceChart"></canvas></div>
+                <h3>Risk Assessment Profiling</h3>
+                <div class="chart-wrapper"><canvas id="riskDistributionChart"></canvas></div>
             </section>
         </div>
 
         <div class="charts-grid" style="margin-top: 1.5rem;">
             <section class="card">
-                <h3>Student vs. Intern Comparison (Avg Score)</h3>
-                <div class="chart-wrapper"><canvas id="typeComparisonChart"></canvas></div>
+                <h3>Mean Performance by Functional Unit</h3>
+                <div class="chart-wrapper"><canvas id="domainPerformanceChart"></canvas></div>
             </section>
-            <section class="card"
-                style="background: transparent; border: 1px dashed var(--border); display: flex; align-items: center; justify-content: center;">
-                <p style="color: var(--secondary);">More analytics coming soon...</p>
+            <section class="card">
+                <h3>Contract Type Variance</h3>
+                <div class="chart-wrapper"><canvas id="typeComparisonChart"></canvas></div>
             </section>
         </div>
     </main>

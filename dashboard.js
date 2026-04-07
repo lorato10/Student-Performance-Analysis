@@ -158,6 +158,10 @@ function renderPublicDashboard(students) {
         const marks = parseInt(s.marks || 0);
         const status = marks >= 50 ? "Pass" : "Fail";
         const sClass = status.toLowerCase();
+        
+        const attendance = parseInt(s.attendance || 0);
+        const riskProfile = attendance < 75 ? "High Risk" : "Optimal";
+        const riskClass = attendance < 75 ? "fail" : "pass";
 
         return `
             <tr>
@@ -166,8 +170,9 @@ function renderPublicDashboard(students) {
                 <td><span class="type-badge">${s.type}</span></td>
                 <td>${s.dept}</td>
                 <td>${s.duration || '-'}</td>
-                <td>${s.attendance}%</td>
-                <td>${s.marks}</td>
+                <td>${attendance}%</td>
+                <td>${marks}</td>
+                <td><span class="status-pill status-${riskClass}">${riskProfile}</span></td>
                 <td><span class="status-pill status-${sClass}">${status}</span></td>
             </tr>`;
     }).join('');
@@ -266,6 +271,12 @@ function updateAnalytics(students) {
             options: { cutout: '75%' } // Thin, elegant rim
         },
         { 
+            id: 'riskDistributionChart', 
+            type: 'doughnut', 
+            func: getRiskData,
+            options: { cutout: '75%' }
+        },
+        { 
             id: 'domainPerformanceChart', 
             type: 'polarArea', 
             func: getDomainData,
@@ -321,10 +332,25 @@ function getStatusData(students) {
         labels: ['Pass', 'Fail'],
         datasets: [{ 
             data: [pass, students.length - pass], 
-            backgroundColor: ['rgba(16, 185, 129, 0.85)', 'rgba(244, 63, 94, 0.85)'], 
-            borderWidth: 5,
-            borderColor: '#1e293b',
-            hoverOffset: 8
+            backgroundColor: ['rgba(52, 211, 153, 0.9)', 'rgba(248, 113, 113, 0.9)'], 
+            borderWidth: 4,
+            borderColor: '#0b0f19',
+            hoverOffset: 12
+        }]
+    };
+}
+
+function getRiskData(students) {
+    const highRisk = students.filter(s => parseInt(s.attendance || 0) < 75).length;
+    const optimal = students.length - highRisk;
+    return {
+        labels: ['Optimal', 'High Risk'],
+        datasets: [{ 
+            data: [optimal, highRisk], 
+            backgroundColor: ['rgba(52, 211, 153, 0.9)', 'rgba(251, 191, 36, 0.9)'], 
+            borderWidth: 4,
+            borderColor: '#0b0f19',
+            hoverOffset: 12
         }]
     };
 }
@@ -338,12 +364,12 @@ function getDomainData(students) {
     });
     
     const paletteBg = [
-        'rgba(212, 175, 55, 0.8)', 'rgba(56, 189, 248, 0.8)', 
-        'rgba(167, 139, 250, 0.8)', 'rgba(244, 63, 94, 0.8)', 
-        'rgba(16, 185, 129, 0.8)', 'rgba(249, 115, 22, 0.8)',
-        'rgba(236, 72, 153, 0.8)'
+        'rgba(251, 191, 36, 0.85)', 'rgba(56, 189, 248, 0.85)', 
+        'rgba(167, 139, 250, 0.85)', 'rgba(244, 63, 94, 0.85)', 
+        'rgba(52, 211, 153, 0.85)', 'rgba(251, 146, 60, 0.85)',
+        'rgba(236, 72, 153, 0.85)'
     ];
-    const paletteBorder = ['#d4af37', '#38bdf8', '#a78bfa', '#f43f5e', '#10b981', '#f97316', '#ec4899'];
+    const paletteBorder = ['#fbbf24', '#38bdf8', '#a78bfa', '#f43f5e', '#34d399', '#fb923c', '#ec4899'];
 
     return {
         labels: Object.keys(domains),
@@ -374,4 +400,78 @@ function getTypeData(students) {
             barThickness: 36
         }]
     };
-}
+}
+
+// --- 6. EXPORT TO PDF ---
+window.exportAuditPDF = () => {
+    if (typeof window.jspdf === 'undefined') {
+        alert("PDF generator not yet loaded. Please try again in a moment.");
+        return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape');
+
+    // Branding & Header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(212, 175, 55); // Gold
+    doc.text("Excellence Web Service", 14, 20);
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(14);
+    doc.setTextColor(50, 50, 50);
+    doc.text("System Audit & Human Capital Registry", 14, 28);
+    
+    doc.setFontSize(10);
+    doc.setTextColor(100, 100, 100);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 34);
+    doc.text(`Total Headcount: ${allStudents.length} Active Entities`, 14, 39);
+
+    // Prepare Table Data
+    const tableHeaders = [["ID", "Entity Name", "Contract Type", "Functional Unit", "Tenure", "Availability (%)", "Metric", "Risk Profile", "Status"]];
+    const tableData = allStudents.map(s => {
+        const attendance = parseInt(s.attendance || 0);
+        const marks = parseInt(s.marks || 0);
+        return [
+            s.id || '-',
+            s.name || '-',
+            s.type || '-',
+            s.dept || '-',
+            s.duration || '-',
+            attendance.toString(),
+            marks.toString(),
+            attendance < 75 ? "High Risk" : "Optimal",
+            marks >= 50 ? "Pass" : "Fail"
+        ];
+    });
+
+    doc.autoTable({
+        startY: 45,
+        head: tableHeaders,
+        body: tableData,
+        theme: 'grid',
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { font: 'helvetica', fontSize: 9, cellPadding: 4 },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        didParseCell: function(data) {
+            // Apply conditional styling for Risk Profile (Column 7)
+            if (data.section === 'body' && data.column.index === 7) {
+                if (data.cell.raw === 'High Risk') {
+                    data.cell.styles.textColor = [220, 38, 38]; // Red
+                    data.cell.styles.fontStyle = 'bold';
+                } else {
+                    data.cell.styles.textColor = [22, 163, 74]; // Green
+                }
+            }
+            // Apply conditional styling for Status (Column 8)
+            if (data.section === 'body' && data.column.index === 8) {
+                if (data.cell.raw === 'Fail') {
+                    data.cell.styles.textColor = [220, 38, 38];
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            }
+        }
+    });
+
+    doc.save("System_Audit_Excellence.pdf");
+};
