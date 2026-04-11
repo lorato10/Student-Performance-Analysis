@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Excellence Web Service | Dashboard</title>
+    <title>Intern Dashboard | Excellence Web Service</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -12,8 +12,6 @@
     <link rel="stylesheet" href="style.css">
     <script src="firebase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body>
@@ -22,201 +20,216 @@
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="3" y1="12" x2="21" y2="12"></line>
             <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18">
-            </line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
     </button>
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
-            <div class="logo-icon" style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <svg width="100%" height="100%" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stop-color="#fef08a" />
-                            <stop offset="50%" stop-color="#d4af37" />
-                            <stop offset="100%" stop-color="#a16207" />
-                        </linearGradient>
-                    </defs>
-                    <path d="M 32 60 C 14 60, 6 46, 6 32 C 6 22, 12 14, 18 10" fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M 12 48 C 10 44, 6 42, 6 42 C 6 42, 10 42, 12 46 Z" fill="url(#goldGradient)"/>
-                    <path d="M 8 38 C 6 34, 4 30, 4 30 C 4 30, 8 32, 10 36 Z" fill="url(#goldGradient)"/>
-                    <path d="M 8 26 C 6 22, 5 18, 5 18 C 5 18, 9 20, 10 24 Z" fill="url(#goldGradient)"/>
-                    <path d="M 12 16 C 10 12, 10 8, 10 8 C 10 8, 14 10, 14 14 Z" fill="url(#goldGradient)"/>
-                    <path d="M 32 60 C 50 60, 58 46, 58 32 C 58 22, 52 14, 46 10" fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
-                    <path d="M 52 48 C 54 44, 58 42, 58 42 C 58 42, 54 42, 52 46 Z" fill="url(#goldGradient)"/>
-                    <path d="M 56 38 C 58 34, 60 30, 60 30 C 60 30, 56 32, 54 36 Z" fill="url(#goldGradient)"/>
-                    <path d="M 56 26 C 58 22, 59 18, 59 18 C 59 18, 55 20, 54 24 Z" fill="url(#goldGradient)"/>
-                    <path d="M 52 16 C 54 12, 54 8, 54 8 C 54 8, 50 10, 50 14 Z" fill="url(#goldGradient)"/>
-                    <path d="M 32 4 L 33.5 8 L 38 8 L 34.5 10.5 L 36 15 L 32 12.5 L 28 15 L 29.5 10.5 L 26 8 L 30.5 8 Z" fill="url(#goldGradient)"/>
-                    <path d="M 20 8 L 21 11 L 24 11 L 21.5 13 L 22.5 16 L 20 14 L 17.5 16 L 18.5 13 L 16 11 L 19 11 Z" fill="url(#goldGradient)"/>
-                    <path d="M 44 8 L 45 11 L 48 11 L 45.5 13 L 46.5 16 L 44 14 L 41.5 16 L 42.5 13 L 40 11 L 43 11 Z" fill="url(#goldGradient)"/>
-                    <text x="32" y="46" font-family="Inter, sans-serif" font-weight="900" font-size="36" fill="url(#goldGradient)" text-anchor="middle">E</text>
-                </svg>
+        <div class="logo"
+            style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
+            <div class="logo-icon"
+                style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png"
+                    alt="Company Logo" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
             <div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px;">
                 <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
                 <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">Web Service</span>
             </div>
         </div>
+
         <nav class="nav-menu">
-            <a href="index.html" class="nav-item active">Public Dashboard</a>
-            <a href="admin.html" class="nav-item">Admin Portal (Login)</a>
+            <div class="nav-subtitle">Main Menu</div>
+            <a href="index.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Home
+            </a>
+            <a href="students.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 010 7.75"></path>
+                </svg>
+                Students
+            </a>
+            <a href="interns.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path>
+                </svg>
+                Interns
+            </a>
+
+            <div class="nav-subtitle">Management</div>
+            <a href="attendance.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 11l3 3L22 4"></path>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                </svg>
+                Attendance
+            </a>
+            <a href="admin.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                        d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z">
+                    </path>
+                </svg>
+                Admin Portal
+            </a>
         </nav>
     </aside>
 
-    <main class="main-content" id="mainContent">
-        <header class="content-header">
-            <div class="header-flex">
-                <div>
-                    <h1>Performance Telemetry</h1>
-                    <p>Real-time view of resources, contracts, and availability.</p>
+    <main class="main-content">
+        <header class="top-bar">
+            <div class="search-bar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" id="studentSearch" placeholder="Search members...">
+            </div>
+            <div class="user-profile">
+                <div class="user-info" style="text-align: right;">
+                    <span class="user-name">Excellence Admin</span>
+                    <span class="user-role">Super Admin</span>
                 </div>
-                <div class="search-container" style="display: flex; gap: 1rem; align-items: center;">
-                    <input type="text" id="studentSearch" placeholder="Search by name, ID, functional unit...">
-                    <button class="btn-primary" style="background: #10B981; color: white;" onclick="exportAuditPDF()">Generate PDF</button>
-                    <a href="admin.html" class="btn-primary" style="text-decoration: none; white-space: nowrap; display: flex; align-items: center; gap: 8px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-                        Admin Portal
-                    </a>
-                </div>
+                <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png"
+                    class="user-avatar" alt="Admin">
             </div>
         </header>
 
-        <!-- KPI Stats -->
+        <h1>Admin Dashboard</h1>
+        <p style="color: var(--secondary); margin-bottom: 2rem;">Welcome back! Here's an overview of Excellence Web
+            Service.</p>
+
+        <!-- KPI Grid -->
         <div class="kpi-grid">
-            <div class="card">
-                <h3>Total Headcount</h3>
-                <p id="totalCount" class="kpi-value">0</p>
+            <div class="card kpi-card purple">
+                <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 010 7.75"></path>
+                    </svg>
+                </div>
+                <div class="kpi-content">
+                    <h3>Total Members</h3>
+                    <div id="totalCount" class="kpi-value">0</div>
+                </div>
             </div>
-            <div class="card">
-                <h3>Mean Availability</h3>
-                <p id="avgAtt" class="kpi-value">0%</p>
+            <div class="card kpi-card blue">
+                <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"></path>
+                    </svg>
+                </div>
+                <div class="kpi-content">
+                    <h3>Total Courses</h3>
+                    <div id="deptCount" class="kpi-value">0</div>
+                </div>
             </div>
-            <div class="card">
-                <h3>Functional Units</h3>
-                <p id="deptCount" class="kpi-value">0</p>
+            <div class="card kpi-card orange">
+                <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"></path>
+                    </svg>
+                </div>
+                <div class="kpi-content">
+                    <h3>Net Balance</h3>
+                    <div id="netBalance" class="kpi-value">₹0</div>
+                </div>
+            </div>
+            <div class="card kpi-card green">
+                <div class="kpi-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                    </svg>
+                </div>
+                <div class="kpi-content">
+                    <h3>Avg Attendance</h3>
+                    <div id="avgAtt" class="kpi-value">0%</div>
+                </div>
             </div>
         </div>
 
-        <!-- Leaderboard & Charts -->
-        <div class="charts-grid">
+        <!-- Charts Grid -->
+        <div class="charts-grid" style="margin-top: 2rem;">
+            <section class="card" style="grid-column: span 2;">
+                <div class="card-header">
+                    <h3>All Exam Results</h3>
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <span style="font-size: 0.8rem; color: var(--secondary);"><span
+                                style="color: var(--purple-main);">●</span> Students</span>
+                        <span style="font-size: 0.8rem; color: var(--secondary);"><span
+                                style="color: var(--blue-main);">●</span> Interns</span>
+                    </div>
+                </div>
+                <div class="chart-wrapper" style="height: 350px;"><canvas id="allExamTrendChart"></canvas></div>
+            </section>
+
             <section class="card">
                 <div class="card-header">
-                    <h3>🏆 Top Quartile Achievers</h3>
-                    <span style="font-size: 0.8rem; color: var(--secondary);">Ranked by Mean Performance</span>
+                    <h3>Member Distribution</h3>
                 </div>
-                <div class="rank-list" id="leaderboard">
-                    <!-- Javascript populates this -->
+                <div class="chart-wrapper" style="height: 350px;"><canvas id="memberDistributionChart"></canvas></div>
+            </section>
+
+            <section class="card" style="grid-column: span 3;">
+                <div class="card-header">
+                    <h3>Attendance Overview</h3>
+                    <p style="font-size: 0.8rem; color: var(--secondary);">7-day average trend across all departments.</p>
+                </div>
+                <div class="chart-wrapper" style="height: 350px;"><canvas id="attendanceOverviewChart"></canvas></div>
+            </section>
+        </div>
+
+        <div class="charts-grid" style="margin-top: 2rem;">
+            <section class="card" style="grid-column: span 2;">
+                <div class="card-header">
+                    <h3>Star Performers</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Course</th>
+                                <th>Score</th>
+                                <th>Performance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="starPerformersTable">
+                            <!-- Populated by dashboard.js -->
+                        </tbody>
+                    </table>
                 </div>
             </section>
-        </div>
 
-        <!-- Comprehensive Member Roster -->
-        <section class="card roster-section">
-            <div class="card-header">
-                <h2>Human Capital Registry</h2>
-                <div id="filterStatus">Showing all active resources</div>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Entity Name</th>
-                            <th>Contract Type</th>
-                            <th>Functional Unit</th>
-                            <th>Tenure</th>
-                            <th>Availability</th>
-                            <th>Performance Metric</th>
-                            <th>Risk Profile</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="publicTableBody">
-                        <!-- Data flows from dashboard.js -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- FINANCIAL TRACKER SECTION -->
-        <br>
-        <header class="content-header">
-            <h2>Financial Telemetry</h2>
-            <p>Fiscal records of organizational expenditures and receivables.</p>
-        </header>
-        
-        <div class="kpi-grid">
-            <div class="card" style="border-left: 4px solid #16a34a;">
-                <h3>Total Revenue (Fees)</h3>
-                <p id="totalFees" class="kpi-value" style="color: #16a34a;">₹0</p>
-            </div>
-            <div class="card" style="border-left: 4px solid #ef4444;">
-                <h3>Total Expenses (Salary)</h3>
-                <p id="totalEarnings" class="kpi-value" style="color: #ef4444;">₹0</p>
-            </div>
-            <div class="card" style="border-left: 4px solid var(--primary);">
-                <h3>Net Balance</h3>
-                <p id="netBalance" class="kpi-value">₹0</p>
-            </div>
-        </div>
-
-        <section class="card roster-section">
-            <div class="card-header">
-                <h2>Financial Records</h2>
-            </div>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Entity Name</th>
-                            <th>Role</th>
-                            <th>Functional Unit</th>
-                            <th style="text-align: right;">Amount (₹)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="financialTableBody">
-                        <!-- Data flows from dashboard.js -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        <!-- END FINANCIAL TRACKER SECTION -->
-
-        <br>
-        <header class="content-header">
-            <h2>Advanced Telemetry Insights</h2>
-            <p>Predictive metrics and comparative analytics.</p>
-        </header>
-        <br>
-        <div class="charts-grid">
             <section class="card">
-                <h3>Pass vs. Fail Distribution</h3>
-                <div class="chart-wrapper"><canvas id="statusDistributionChart"></canvas></div>
-            </section>
-            <section class="card">
-                <h3>Risk Assessment Profiling</h3>
-                <div class="chart-wrapper"><canvas id="riskDistributionChart"></canvas></div>
-            </section>
-        </div>
-
-        <div class="charts-grid" style="margin-top: 1.5rem;">
-            <section class="card">
-                <h3>Mean Performance by Functional Unit</h3>
-                <div class="chart-wrapper"><canvas id="domainPerformanceChart"></canvas></div>
-            </section>
-            <section class="card">
-                <h3>Contract Type Variance</h3>
-                <div class="chart-wrapper"><canvas id="typeComparisonChart"></canvas></div>
+                <div class="card-header">
+                    <h3>Recent Updates</h3>
+                </div>
+                <div id="recentUpdatesList" style="display: flex; flex-direction: column; gap: 1rem;">
+                    <!-- Static or dynamic updates -->
+                    <p style="color: var(--secondary); font-size: 0.9rem;">No recent updates found.</p>
+                </div>
             </section>
         </div>
     </main>
 
     <script src="dashboard.js"></script>
-
+    <script>
+        // Temporary handler for page initialization if needed
+    </script>
 </body>
+
 
 </html>

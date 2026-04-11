@@ -26,39 +26,22 @@
     <!-- Login Screen -->
     <div id="authScreen" class="auth-wrapper">
         <div class="card auth-card">
-            <div class="logo" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; margin-bottom: 2rem; font-size: 1.5rem; line-height: 1.2;">
-                <div class="logo-icon" style="height: 64px; width: 64px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <svg width="100%" height="100%" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#fef08a" />
-                                <stop offset="50%" stop-color="#d4af37" />
-                                <stop offset="100%" stop-color="#a16207" />
-                            </linearGradient>
-                        </defs>
-                        <path d="M 32 60 C 14 60, 6 46, 6 32 C 6 22, 12 14, 18 10" fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M 12 48 C 10 44, 6 42, 6 42 C 6 42, 10 42, 12 46 Z" fill="url(#goldGradient)"/>
-                        <path d="M 8 38 C 6 34, 4 30, 4 30 C 4 30, 8 32, 10 36 Z" fill="url(#goldGradient)"/>
-                        <path d="M 8 26 C 6 22, 5 18, 5 18 C 5 18, 9 20, 10 24 Z" fill="url(#goldGradient)"/>
-                        <path d="M 12 16 C 10 12, 10 8, 10 8 C 10 8, 14 10, 14 14 Z" fill="url(#goldGradient)"/>
-                        <path d="M 32 60 C 50 60, 58 46, 58 32 C 58 22, 52 14, 46 10" fill="none" stroke="url(#goldGradient)" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M 52 48 C 54 44, 58 42, 58 42 C 58 42, 54 42, 52 46 Z" fill="url(#goldGradient)"/>
-                        <path d="M 56 38 C 58 34, 60 30, 60 30 C 60 30, 56 32, 54 36 Z" fill="url(#goldGradient)"/>
-                        <path d="M 56 26 C 58 22, 59 18, 59 18 C 59 18, 55 20, 54 24 Z" fill="url(#goldGradient)"/>
-                        <path d="M 52 16 C 54 12, 54 8, 54 8 C 54 8, 50 10, 50 14 Z" fill="url(#goldGradient)"/>
-                        <path d="M 32 4 L 33.5 8 L 38 8 L 34.5 10.5 L 36 15 L 32 12.5 L 28 15 L 29.5 10.5 L 26 8 L 30.5 8 Z" fill="url(#goldGradient)"/>
-                        <path d="M 20 8 L 21 11 L 24 11 L 21.5 13 L 22.5 16 L 20 14 L 17.5 16 L 18.5 13 L 16 11 L 19 11 Z" fill="url(#goldGradient)"/>
-                        <path d="M 44 8 L 45 11 L 48 11 L 45.5 13 L 46.5 16 L 44 14 L 41.5 16 L 42.5 13 L 40 11 L 43 11 Z" fill="url(#goldGradient)"/>
-                        <text x="32" y="46" font-family="Inter, sans-serif" font-weight="900" font-size="36" fill="url(#goldGradient)" text-anchor="middle">E</text>
-                    </svg>
+            <div class="logo"
+                style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; margin-bottom: 2rem; font-size: 1.5rem; line-height: 1.2;">
+                <div class="logo-icon"
+                    style="height: 64px; width: 64px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png"
+                        alt="Company Logo"
+                        style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));">
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; margin-top: 4px;">
                     <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
                     <span style="color: var(--primary); font-size: 1.1rem; font-weight: 700;">Web Service</span>
                 </div>
             </div>
-            <h2>System Administrator Authentication</h2>
-            <p style="color: var(--secondary); margin-bottom: 2rem;">Please enter credentials to manage system registry.</p>
+            <h2>Admin Login</h2>
+            <p style="color: var(--secondary); margin-bottom: 2rem;">Please log in to manage records.
+            </p>
             <form id="loginForm" class="styled-form">
                 <div class="input-group">
                     <label>Email Address</label>
@@ -76,98 +59,147 @@
 
     <!-- Admin Panel Content -->
     <div id="adminPanel" style="display: none; width: 100%;">
-        <aside class="sidebar" id="sidebar">
-            <div class="logo" style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
-                <div class="logo-icon" style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <svg width="100%" height="100%" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <linearGradient id="goldGradientAdmin" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#fef08a" />
-                                <stop offset="50%" stop-color="#d4af37" />
-                                <stop offset="100%" stop-color="#a16207" />
-                            </linearGradient>
-                        </defs>
-                        <path d="M 32 60 C 14 60, 6 46, 6 32 C 6 22, 12 14, 18 10" fill="none" stroke="url(#goldGradientAdmin)" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M 12 48 C 10 44, 6 42, 6 42 C 6 42, 10 42, 12 46 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 8 38 C 6 34, 4 30, 4 30 C 4 30, 8 32, 10 36 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 8 26 C 6 22, 5 18, 5 18 C 5 18, 9 20, 10 24 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 12 16 C 10 12, 10 8, 10 8 C 10 8, 14 10, 14 14 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 32 60 C 50 60, 58 46, 58 32 C 58 22, 52 14, 46 10" fill="none" stroke="url(#goldGradientAdmin)" stroke-width="3" stroke-linecap="round"/>
-                        <path d="M 52 48 C 54 44, 58 42, 58 42 C 58 42, 54 42, 52 46 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 56 38 C 58 34, 60 30, 60 30 C 60 30, 56 32, 54 36 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 56 26 C 58 22, 59 18, 59 18 C 59 18, 55 20, 54 24 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 52 16 C 54 12, 54 8, 54 8 C 54 8, 50 10, 50 14 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 32 4 L 33.5 8 L 38 8 L 34.5 10.5 L 36 15 L 32 12.5 L 28 15 L 29.5 10.5 L 26 8 L 30.5 8 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 20 8 L 21 11 L 24 11 L 21.5 13 L 22.5 16 L 20 14 L 17.5 16 L 18.5 13 L 16 11 L 19 11 Z" fill="url(#goldGradientAdmin)"/>
-                        <path d="M 44 8 L 45 11 L 48 11 L 45.5 13 L 46.5 16 L 44 14 L 41.5 16 L 42.5 13 L 40 11 L 43 11 Z" fill="url(#goldGradientAdmin)"/>
-                        <text x="32" y="46" font-family="Inter, sans-serif" font-weight="900" font-size="36" fill="url(#goldGradientAdmin)" text-anchor="middle">E</text>
-                    </svg>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px;">
-                    <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
-                    <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">Web Service</span>
-                </div>
+    <aside class="sidebar" id="sidebar">
+        <div class="logo" style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
+            <div class="logo-icon" style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png" alt="Company Logo" style="width: 100%; height: 100%; object-fit: contain;">
             </div>
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-item">Global Telemetry</a>
-                <a href="admin.html" class="nav-item active">System Registry Operations</a>
-                <button id="logoutBtn" class="nav-item logout-link">Sign Out</button>
-            </nav>
-        </aside>
+            <div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px;">
+                <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
+                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">Web Service</span>
+            </div>
+        </div>
+
+        <nav class="nav-menu">
+            <div class="nav-subtitle">Main Menu</div>
+            <a href="index.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                Home
+            </a>
+            <a href="students.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path></svg>
+                Students
+            </a>
+            <a href="interns.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path></svg>
+                Interns
+            </a>
+            
+            <div class="nav-subtitle">Management</div>
+            <a href="attendance.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
+                Attendance
+            </a>
+            <a href="admin.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path></svg>
+                Admin Portal
+            </a>
+            <button id="logoutBtn" class="nav-item logout-link" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                Sign Out
+            </button>
+        </nav>
+    </aside>
 
         <main class="main-content">
-            <header class="content-header">
-                <h1>System Registry Operations</h1>
-                <p>Provision new entities or deprecate existing ones.</p>
+            <header class="top-bar">
+                <div class="page-info">
+                    <h1>Manage Database</h1>
+                    <p style="color: var(--secondary);">Add new members or manage existing records.</p>
+                </div>
+                <div class="user-profile">
+                    <div class="user-info" style="text-align: right;">
+                        <span class="user-name">Admin Portal</span>
+                        <span class="user-role">Super Admin</span>
+                    </div>
+                    <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png" class="user-avatar" alt="Admin">
+                </div>
             </header>
 
             <div class="admin-grid">
                 <!-- Add Record Form -->
                 <section class="card">
                     <div class="card-header">
-                        <h3>Resource Provisioning</h3>
+                        <h3>Add New Member</h3>
                     </div>
                     <form id="adminEntryForm" class="styled-form">
                         <div class="input-group"><label>ID</label><input type="text" id="stuId" required></div>
-                        <div class="input-group"><label>Entity Name</label><input type="text" id="stuName" required></div>
+                        <div class="input-group"><label>Name</label><input type="text" id="stuName" required></div>
                         <div class="input-group">
-                            <label>Contract Type</label>
+                            <label>Member Type</label>
                             <select id="stuType">
                                 <option value="Student">Student</option>
                                 <option value="Intern">Intern</option>
                             </select>
                         </div>
                         <div class="input-group">
-                            <label>Functional Unit</label>
+                            <label>Course</label>
                             <select id="stuDept">
-                                <option value="Full Stack">Full Stack</option>
-                                <option value="Front End Developer">Front End Developer</option>
-                                <option value="Back End Developer">Back End Developer</option>
-                                <option value="Design">Design</option>
-                                <option value="Data Analysis">Data Analysis</option>
-                                <option value="Marketing">Marketing</option>
+                                <!-- Dynamically populated by dashboard.js -->
                             </select>
                         </div>
-                        <div class="input-group"><label>Tenure</label><input type="text" id="stuDuration" placeholder="e.g. 6 Months" required></div>
-                        <div class="input-group"><label>Availability %</label><input type="number" id="stuAtt" required>
+                        <div class="input-group">
+                            <label>Duration (In months)</label>
+                            <select id="stuDuration" required>
+                                <option value="" disabled selected>Select duration...</option>
+                                <option value="6 months">6 months</option>
+                                <option value="12 months">12 months</option>
+                                <option value="18 months">18 months</option>
+                                <option value="24 months">24 months</option>
+                                <option value="30 months">30 months</option>
+                                <option value="36 months">36 months</option>
+                            </select>
                         </div>
-                        <div class="input-group"><label>Performance Metric</label><input type="number" id="stuMarks"
-                                required></div>
-                        <div class="input-group"><label>Fiscal Allocation (₹)</label><input type="number" id="stuFunds" required></div>
-                        <button type="submit" class="btn-primary" style="width: 100%;">Deploy Provisioning</button>
+                        <div class="input-group">
+                            <label>Total Working Days</label>
+                            <input type="number" id="stuTotalDays" min="1" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Days Attended</label>
+                            <input type="number" id="stuPresentDays" min="0" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Attendance % (Auto Calc)</label>
+                            <input type="number" id="stuAtt" required readonly
+                                style="background-color: rgba(30, 41, 59, 0.4); border: 1px solid var(--border); color: #94a3b8; cursor: not-allowed;">
+                        </div>
+                        <!-- Performance Tracker for Students -->
+                        <div id="studentPerformanceFields" style="display: none;">
+                            <div class="input-group">
+                                <label>Half Yearly Performance (%)</label>
+                                <input type="number" id="stuHalfYearly" min="0" max="100">
+                            </div>
+                            <div class="input-group">
+                                <label>Annual Performance (%)</label>
+                                <input type="number" id="stuAnnual" min="0" max="100">
+                            </div>
+                        </div>
+
+                        <!-- Projects tracker for Interns -->
+                        <div id="internPerformanceFields" style="display: none;">
+                            <div class="input-group">
+                                <label>No. of Projects Done</label>
+                                <input type="number" id="stuProjects" min="0">
+                            </div>
+                        </div>
+
+                        <div class="input-group"><label>Overall Score</label><input type="number" id="stuMarks" required></div>
+                        <div class="input-group"><label>Fees Paid (₹)</label><input type="number" id="stuFunds" required>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width: 100%;">Push to Dashboard</button>
                     </form>
                 </section>
 
                 <!-- Database View -->
                 <section class="card" style="padding: 0;">
                     <div class="card-header" style="padding: 1.5rem; border-bottom: var(--border);">
-                        <h3>Active Entity Registry</h3>
+                        <h3>Saved Members</h3>
                     </div>
                     <div class="table-container">
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Entity Identifier</th>
+                                    <th>Name</th>
                                     <th style="text-align: right;">Action</th>
                                 </tr>
                             </thead>
