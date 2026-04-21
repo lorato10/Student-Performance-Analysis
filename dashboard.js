@@ -100,6 +100,13 @@ db.ref('students').on('value', (snapshot) => {
             studentData.attendance = 0;
         }
         
+        // Automatic Financial Calculation based on rules
+        if (studentData.type === 'Student') {
+            studentData.funds = 35000; // 30,000 base fee + (2,500 * 2 exams)
+        } else if (studentData.type === 'Intern') {
+            studentData.funds = 15000;
+        }
+        
         studentArray.push(studentData);
     }
 
@@ -140,35 +147,7 @@ const courseOptions = {
 const stuTypeSelect = document.getElementById('stuType');
 const stuDeptSelect = document.getElementById('stuDept');
 
-// Auto-calculate attendance
-const stuTotalDays = document.getElementById('stuTotalDays');
-const stuPresentDays = document.getElementById('stuPresentDays');
-const stuAtt = document.getElementById('stuAtt');
 
-window.calcAttendance = () => {
-    if (!stuTotalDays || !stuPresentDays || !stuAtt) return;
-    
-    if (stuTotalDays.value < 0) stuTotalDays.value = 0;
-    if (stuPresentDays.value < 0) stuPresentDays.value = 0;
-    
-    const total = parseInt(stuTotalDays.value || 0);
-    let present = parseInt(stuPresentDays.value || 0);
-
-    if (total > 0) {
-        if (present > total) {
-            present = total; 
-            stuPresentDays.value = present;
-        }
-        stuAtt.value = Math.round((present / total) * 100);
-    } else {
-        stuAtt.value = '';
-    }
-};
-
-if (stuTotalDays && stuPresentDays) {
-    stuTotalDays.addEventListener('input', window.calcAttendance);
-    stuPresentDays.addEventListener('input', window.calcAttendance);
-}
 
 window.populateCourses = () => {
     if (!stuTypeSelect || !stuDeptSelect) return;
@@ -205,17 +184,24 @@ if (stuTypeSelect) {
 if (entryForm) {
     entryForm.addEventListener('submit', (e) => {
         e.preventDefault();
+        const type = document.getElementById('stuType').value;
+        const duration = document.getElementById('stuDuration').value;
+        
+        let calculatedFunds = 0;
+        if (type === 'Student') {
+            calculatedFunds = 35000; // 30000 + 2500*2
+        } else if (type === 'Intern') {
+            calculatedFunds = 15000;
+        }
+
         const studentData = {
             id: document.getElementById('stuId').value,
             name: document.getElementById('stuName').value,
-            type: document.getElementById('stuType').value,
+            type: type,
             dept: document.getElementById('stuDept').value,
-            duration: document.getElementById('stuDuration').value,
-            totalDays: document.getElementById('stuTotalDays').value,
-            presentDays: document.getElementById('stuPresentDays').value,
-            attendance: document.getElementById('stuAtt').value,
+            duration: duration,
             marks: document.getElementById('stuMarks').value,
-            funds: document.getElementById('stuFunds').value,
+            funds: calculatedFunds, // Automatically calculated
             halfYearly: document.getElementById('stuHalfYearly')?.value || 0,
             annual: document.getElementById('stuAnnual')?.value || 0,
             projectsDone: document.getElementById('stuProjects')?.value || 0
@@ -252,9 +238,6 @@ window.editStudent = (key) => {
 
     safeSetVal('stuDept', student.dept);
     safeSetVal('stuDuration', student.duration || '');
-    safeSetVal('stuTotalDays', student.totalDays || '');
-    safeSetVal('stuPresentDays', student.presentDays || '');
-    safeSetVal('stuAtt', parseInt(student.attendance || 0));
     safeSetVal('stuMarks', student.marks);
     safeSetVal('stuFunds', student.funds || '');
     
@@ -295,21 +278,70 @@ function renderHomeDashboard(students) {
     safeSetText('totalCount', students.length);
     safeSetText('deptCount', depts.size);
     safeSetText('avgAtt', avgAtt + "%");
-    safeSetText('netBalance', '₹' + (totalFees - totalSalary).toLocaleString('en-IN'));
+    safeSetText('netBalance', '₹' + Math.max(0, totalFees - totalSalary).toLocaleString('en-IN'));
 
-    const starTable = document.getElementById('starPerformersTable');
-    if (starTable) {
-        const top5 = [...students].sort((a, b) => parseInt(b.marks || 0) - parseInt(a.marks || 0)).slice(0, 5);
-        starTable.innerHTML = top5.map(s => `
-            <tr>
-                <td><strong>${s.name}</strong></td>
-                <td>${s.id}</td>
-                <td><span class="type-badge">${s.type}</span></td>
-                <td>${s.dept}</td>
-                <td>${s.marks}</td>
-                <td><span class="status-pill status-pass">${parseInt(s.marks) >= 50 ? 'Excellent' : 'Average'}</span></td>
-            </tr>
-        `).join('');
+    // ── Top 3 Students (ranked by exam marks) ──
+    const topStudentsTable = document.getElementById('topStudentsTable');
+    if (topStudentsTable) {
+        const rankIcons = ['🥇', '🥈', '🥉'];
+        const top3Students = [...students]
+            .filter(s => s.type === 'Student')
+            .sort((a, b) => parseInt(b.marks || 0) - parseInt(a.marks || 0))
+            .slice(0, 3);
+
+        if (top3Students.length === 0) {
+            topStudentsTable.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--secondary);padding:1.5rem;">No student data available.</td></tr>`;
+        } else {
+            topStudentsTable.innerHTML = top3Students.map((s, i) => {
+                const score = parseInt(s.marks || 0);
+                const att = parseInt(s.attendance || 0);
+                const statusClass = score >= 75 ? 'status-pass' : score >= 50 ? 'status-active' : 'status-fail';
+                const statusLabel = score >= 75 ? 'Excellent' : score >= 50 ? 'Promoted' : 'Needs Work';
+                return `
+                <tr>
+                    <td style="font-size:1.2rem;text-align:center;">${rankIcons[i] || (i + 1)}</td>
+                    <td><strong style="color:#f8fafc;">${s.name}</strong><br><small style="color:var(--secondary);">${s.id}</small></td>
+                    <td style="color:var(--secondary);font-size:0.85rem;">${s.dept}</td>
+                    <td><strong style="color:#a855f7;">${score}%</strong></td>
+                    <td><strong style="color:${att >= 75 ? '#22c55e' : att >= 50 ? '#fbbf24' : '#ef4444'};">${att}%</strong></td>
+                    <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+                </tr>`;
+            }).join('');
+        }
+    }
+
+    // ── Top 3 Interns (ranked by projects done, then marks) ──
+    const topInternsTable = document.getElementById('topInternsTable');
+    if (topInternsTable) {
+        const rankIcons = ['🥇', '🥈', '🥉'];
+        const top3Interns = [...students]
+            .filter(s => s.type === 'Intern')
+            .sort((a, b) => {
+                const pd = parseInt(b.projectsDone || 0) - parseInt(a.projectsDone || 0);
+                if (pd !== 0) return pd;
+                return parseInt(b.marks || 0) - parseInt(a.marks || 0);
+            })
+            .slice(0, 3);
+
+        if (top3Interns.length === 0) {
+            topInternsTable.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--secondary);padding:1.5rem;">No intern data available.</td></tr>`;
+        } else {
+            topInternsTable.innerHTML = top3Interns.map((s, i) => {
+                const projects = parseInt(s.projectsDone || 0);
+                const att = parseInt(s.attendance || 0);
+                const statusClass = att >= 75 ? 'status-pass' : att >= 50 ? 'status-active' : 'status-fail';
+                const statusLabel = att >= 75 ? 'Active' : att >= 50 ? 'Warning' : 'Inactive';
+                return `
+                <tr>
+                    <td style="font-size:1.2rem;text-align:center;">${rankIcons[i] || (i + 1)}</td>
+                    <td><strong style="color:#f8fafc;">${s.name}</strong><br><small style="color:var(--secondary);">${s.id}</small></td>
+                    <td style="color:var(--secondary);font-size:0.85rem;">${s.dept}</td>
+                    <td><strong style="color:#0ea5e9;">${projects}</strong></td>
+                    <td><strong style="color:${att >= 75 ? '#22c55e' : att >= 50 ? '#fbbf24' : '#ef4444'};">${att}%</strong></td>
+                    <td><span class="status-pill ${statusClass}">${statusLabel}</span></td>
+                </tr>`;
+            }).join('');
+        }
     }
     renderHomeCharts(students);
 }
@@ -536,52 +568,77 @@ function renderStudentCharts(students) {
 function renderHomeCharts(students) {
     if (typeof Chart === 'undefined') return;
 
-    // 1. Performance Trend Chart (Mock dynamic data for now as we only have current scores)
+    // 1. All Exam Results Chart: Grouped Bar Chart (Avg Score per Department)
+    // This is much more practical than a fake trend.
     const trendCtx = document.getElementById('allExamTrendChart')?.getContext('2d');
     if (trendCtx) {
         if (charts['allExamTrend']) charts['allExamTrend'].destroy();
-        const labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
         
-        // Calculate average performance for Students and Interns
-        const avgS = students.filter(s => s.type === 'Student').reduce((acc, s) => acc + parseInt(s.marks || 0), 0) / (students.filter(s => s.type === 'Student').length || 1);
-        const avgI = students.filter(s => s.type === 'Intern').reduce((acc, s) => acc + parseInt(s.marks || 0), 0) / (students.filter(s => s.type === 'Intern').length || 1);
+        // Collect departments and their avg scores
+        const deptPerformance = {};
+        students.forEach(s => {
+            if (!deptPerformance[s.dept]) {
+                deptPerformance[s.dept] = { studentSum: 0, studentCount: 0, internSum: 0, internCount: 0 };
+            }
+            if (s.type === 'Student') {
+                deptPerformance[s.dept].studentSum += parseInt(s.marks || 0);
+                deptPerformance[s.dept].studentCount++;
+            } else {
+                deptPerformance[s.dept].internSum += parseInt(s.marks || 0);
+                deptPerformance[s.dept].internCount++;
+            }
+        });
+
+        // Pick top 6 departments by total member count for clarity
+        const sortedDepts = Object.keys(deptPerformance)
+            .sort((a, b) => (deptPerformance[b].studentCount + deptPerformance[b].internCount) - (deptPerformance[a].studentCount + deptPerformance[a].internCount))
+            .slice(0, 6);
+
+        const studentAvgData = sortedDepts.map(d => deptPerformance[d].studentCount ? Math.round(deptPerformance[d].studentSum / deptPerformance[d].studentCount) : 0);
+        const internAvgData = sortedDepts.map(d => deptPerformance[d].internCount ? Math.round(deptPerformance[d].internSum / deptPerformance[d].internCount) : 0);
 
         charts['allExamTrend'] = new Chart(trendCtx, {
-            type: 'line',
+            type: 'bar',
             data: {
-                labels: labels,
+                labels: sortedDepts,
                 datasets: [
                     {
-                        label: 'Students Performance',
-                        data: [avgS * 0.8, avgS * 0.9, avgS * 0.95, avgS],
-                        borderColor: '#a855f7',
-                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
-                        fill: true,
-                        tension: 0.4
+                        label: 'Students Avg Score',
+                        data: studentAvgData,
+                        backgroundColor: '#a855f7',
+                        borderRadius: 4,
+                        barThickness: 20
                     },
                     {
-                        label: 'Interns Performance',
-                        data: [avgI * 0.7, avgI * 0.85, avgI * 0.9, avgI],
-                        borderColor: '#0ea5e9',
-                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
-                        fill: true,
-                        tension: 0.4
+                        label: 'Interns Avg Score',
+                        data: internAvgData,
+                        backgroundColor: '#0ea5e9',
+                        borderRadius: 4,
+                        barThickness: 20
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, usePointStyle: true } } },
+                indexAxis: 'y', // Horizontal bars for easier label reading
+                plugins: { 
+                    legend: { position: 'top', labels: { boxWidth: 12, usePointStyle: true } },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => `${context.dataset.label}: ${context.raw}%`
+                        }
+                    }
+                },
                 scales: {
-                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { grid: { display: false } }
+                    x: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' }, title: { display: true, text: 'Average Score (%)', color: '#94a3b8' } },
+                    y: { grid: { display: false } }
                 }
             }
         });
     }
 
-    // 2. Member Distribution Chart
+    // 2. Member Distribution Chart (Enhanced Doughnut)
     const distCtx = document.getElementById('memberDistributionChart')?.getContext('2d');
     if (distCtx) {
         if (charts['memberDist']) charts['memberDist'].destroy();
@@ -596,76 +653,178 @@ function renderHomeCharts(students) {
                     data: [studentCount, internCount],
                     backgroundColor: ['#a855f7', '#f97316'],
                     borderWidth: 0,
-                    weight: 2
+                    hoverOffset: 10
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                cutout: '80%',
+                cutout: '75%',
                 plugins: {
-                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20, font: { size: 12 } } },
+                    tooltip: {
+                        callbacks: {
+                            label: (info) => ` ${info.label}: ${info.raw} members`
+                        }
+                    }
                 }
             }
         });
     }
 
-    // 3. Attendance Overview Chart (7-day trend)
-    const attCtx = document.getElementById('attendanceOverviewChart')?.getContext('2d');
-    if (attCtx) {
-        if (charts['attOverview']) charts['attOverview'].destroy();
-        
+    // 3. Attendance Analytics: Combined 30-day area chart
+    const buildCombinedAttChart = () => {
+        const canvasId = 'combinedAttChart30';
+        const ctx = document.getElementById(canvasId)?.getContext('2d');
+        if (!ctx) return;
+        if (charts[canvasId]) charts[canvasId].destroy();
+
         const labels = [];
+        const fullDates = [];
         const studentData = [];
         const internData = [];
-        const now = new Date();
         
-        for (let i = 6; i >= 0; i--) {
+        const now = new Date();
+        const studentMembers = students.filter(s => s.type === 'Student');
+        const internMembers = students.filter(s => s.type === 'Intern');
+
+        let stPresentTotal = 0, stDenomTotal = 0, stNonZero = 0, stBest = 0, stLowest = Infinity;
+        let inPresentTotal = 0, inDenomTotal = 0, inNonZero = 0, inBest = 0, inLowest = Infinity;
+
+        for (let i = 29; i >= 0; i--) {
             const d = new Date();
             d.setDate(now.getDate() - i);
             const dateKey = d.toISOString().split('T')[0];
-            labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+            fullDates.push(d);
             
-            const dayStudents = students.filter(s => s.type === 'Student');
-            const dayInterns = students.filter(s => s.type === 'Intern');
+            const label = (i % 5 === 0) ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) : '';
+            labels.push(label);
             
-            const sPresent = dayStudents.filter(s => s.attendanceLog?.[dateKey] === 'Present').length;
-            const iPresent = dayInterns.filter(s => s.attendanceLog?.[dateKey] === 'Present').length;
+            // Student stats this day
+            const stPresent = studentMembers.filter(m => m.attendanceLog?.[dateKey] === 'Present').length;
+            const stTotal = studentMembers.length;
+            const stRate = stTotal ? Math.round((stPresent / stTotal) * 100) : 0;
+            studentData.push(stRate);
             
-            studentData.push(dayStudents.length ? Math.round((sPresent / dayStudents.length) * 100) : 0);
-            internData.push(dayInterns.length ? Math.round((iPresent / dayInterns.length) * 100) : 0);
+            if (stTotal > 0) {
+                stPresentTotal += stRate;
+                stDenomTotal++;
+            }
+            if (stRate > 0) {
+                stNonZero++;
+                if (stRate > stBest) stBest = stRate;
+                if (stRate < stLowest) stLowest = stRate;
+            }
+
+            // Intern stats this day
+            const inPresent = internMembers.filter(m => m.attendanceLog?.[dateKey] === 'Present').length;
+            const inTotal = internMembers.length;
+            const inRate = inTotal ? Math.round((inPresent / inTotal) * 100) : 0;
+            internData.push(inRate);
+            
+            if (inTotal > 0) {
+                inPresentTotal += inRate;
+                inDenomTotal++;
+            }
+            if (inRate > 0) {
+                inNonZero++;
+                if (inRate > inBest) inBest = inRate;
+                if (inRate < inLowest) inLowest = inRate;
+            }
         }
 
-        charts['attOverview'] = new Chart(attCtx, {
-            type: 'bar',
+        if (stLowest === Infinity) stLowest = 0;
+        if (inLowest === Infinity) inLowest = 0;
+
+        const stAvg = stDenomTotal ? Math.round(stPresentTotal / stDenomTotal) : 0;
+        const inAvg = inDenomTotal ? Math.round(inPresentTotal / inDenomTotal) : 0;
+
+        safeSetText('studentAvgRate', stAvg + '%');
+        safeSetText('studentBestDay', stBest + '%');
+        safeSetText('studentLowestDay', stLowest + '%');
+
+        safeSetText('internAvgRate', inAvg + '%');
+        safeSetText('internBestDay', inBest + '%');
+        safeSetText('internLowestDay', inLowest + '%');
+
+        const studentGradient = ctx.createLinearGradient(0, 0, 0, 350);
+        studentGradient.addColorStop(0, 'rgba(168,85,247,0.4)');
+        studentGradient.addColorStop(1, 'rgba(168,85,247,0.0)');
+
+        const internGradient = ctx.createLinearGradient(0, 0, 0, 350);
+        internGradient.addColorStop(0, 'rgba(14,165,233,0.4)');
+        internGradient.addColorStop(1, 'rgba(14,165,233,0.0)');
+
+        charts[canvasId] = new Chart(ctx, {
+            type: 'line',
             data: {
-                labels: labels,
+                labels,
                 datasets: [
                     {
-                        label: 'Students (%)',
+                        label: 'Students',
                         data: studentData,
-                        backgroundColor: '#a855f7',
-                        borderRadius: 6
+                        borderColor: '#a855f7',
+                        backgroundColor: studentGradient,
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
                     },
                     {
-                        label: 'Interns (%)',
+                        label: 'Interns',
                         data: internData,
-                        backgroundColor: '#0ea5e9',
-                        borderRadius: 6
+                        borderColor: '#0ea5e9',
+                        backgroundColor: internGradient,
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2,
+                        pointRadius: 2,
+                        pointHoverRadius: 5
                     }
                 ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: { legend: { display: true, position: 'top', labels: { boxWidth: 12, usePointStyle: true } } },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: { usePointStyle: true, font: { size: 12 } }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            title: (items) => fullDates[items[0].dataIndex].toLocaleDateString('en-US', {
+                                weekday: 'short', month: 'short', day: 'numeric'
+                            }),
+                            label: (item) => `  ${item.dataset.label}: ${item.raw}%`
+                        }
+                    }
+                },
                 scales: {
-                    y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    x: { grid: { display: false } }
+                    y: {
+                        beginAtZero: true,
+                        max: 100,
+                        grid: { color: 'rgba(255,255,255,0.05)' },
+                        ticks: { stepSize: 25, callback: v => v + '%' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#64748b' }
+                    }
+                },
+                interaction: {
+                    mode: 'nearest',
+                    axis: 'x',
+                    intersect: false
                 }
             }
         });
-    }
+    };
+
+    buildCombinedAttChart();
 }
 
 document.getElementById('studentSearch')?.addEventListener('input', () => {
@@ -715,6 +874,9 @@ function renderAttendanceMatrix() {
 
     let bodyHTML = "";
     const now = new Date();
+    // Check if override has been unlocked from attendance.html
+    const overrideActive = (typeof window.isOverrideUnlocked === 'function') ? window.isOverrideUnlocked() : false;
+
     members.forEach(m => {
         let log = m.attendanceLog || {};
         let rowHTML = `<tr><td class="sticky-col"><strong style="color: #f8fafc;">${m.name}</strong><br><small style="color: var(--secondary)">${m.id}</small></td>`;
@@ -723,15 +885,24 @@ function renderAttendanceMatrix() {
             const dateKey = date.toISOString().split('T')[0];
             const diffTime = now.getTime() - date.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            const isLocked = diffDays > 3; 
-            const isEditable = isAdminMode && !isLocked;
+            const isLocked = diffDays > 3;
+            // Editable if: admin logged in AND (within 3-day window OR override is active)
+            const isEditable = isAdminMode && (!isLocked || overrideActive);
             const editableClass = isEditable ? 'editable' : '';
-            const lockedClass = isLocked ? 'att-status-locked' : '';
+            // Locked visual only shown when actually locked and override not active
+            const lockedClass = (isLocked && !overrideActive) ? 'att-status-locked' : '';
+            // Override-locked: admin logged in, locked, but override not yet granted
+            const needsOverride = isAdminMode && isLocked && !overrideActive;
             let status = log[dateKey] === 'Present' ? 'P' : 'A';
             let badgeClass = status === 'P' ? 'att-status-p' : 'att-status-a';
 
-            rowHTML += `<td class="att-cell ${editableClass}">
-                            <span class="${badgeClass} ${lockedClass}" data-key="${m.firebaseKey}" data-date="${dateKey}" data-status="${status}" data-editable="${isEditable}">
+            rowHTML += `<td class="att-cell ${editableClass}" title="${needsOverride ? 'Click to enter override password' : isEditable ? 'Click to toggle' : 'Read-only'}">
+                            <span class="${badgeClass} ${lockedClass}" 
+                                data-key="${m.firebaseKey}" 
+                                data-date="${dateKey}" 
+                                data-status="${status}" 
+                                data-editable="${isEditable}"
+                                data-needs-override="${needsOverride}">
                                 ${status}
                             </span>
                         </td>`;
@@ -741,16 +912,39 @@ function renderAttendanceMatrix() {
     });
     tBody.innerHTML = bodyHTML;
 
+    // Attach click handlers — editable cells toggle; locked cells prompt override
     document.querySelectorAll('.att-cell.editable span').forEach(el => {
         el.addEventListener('click', toggleDailyAttendance);
+    });
+
+    // Locked cells that need override: show modal on click
+    document.querySelectorAll('.att-cell:not(.editable) span[data-needs-override="true"]').forEach(el => {
+        el.style.cursor = 'pointer';
+        el.addEventListener('click', (e) => {
+            if (typeof window.openOverrideModal === 'function') {
+                window.openOverrideModal();
+            } else {
+                alert('Override password required to edit locked records.');
+            }
+        });
     });
 }
 
 function toggleDailyAttendance(e) {
     const trg = e.target;
-    if (!isAdminMode) return alert("Admin login required.");
-    if (trg.getAttribute('data-editable') !== 'true') return alert("Record locked.");
-    
+    if (!isAdminMode) {
+        alert('Admin login required to edit attendance.');
+        return;
+    }
+    if (trg.getAttribute('data-editable') !== 'true') {
+        // Check if override modal is available
+        if (typeof window.openOverrideModal === 'function') {
+            window.openOverrideModal();
+        } else {
+            alert('This record is locked. Use the Override Lock button to unlock it.');
+        }
+        return;
+    }
     const key = trg.getAttribute('data-key');
     const dateKey = trg.getAttribute('data-date');
     const currentStatus = trg.getAttribute('data-status');

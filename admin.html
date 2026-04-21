@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal | Secure Management</title>
+    <link rel="icon" type="image/png" href="../images/company logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -30,8 +31,7 @@
                 style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; margin-bottom: 2rem; font-size: 1.5rem; line-height: 1.2;">
                 <div class="logo-icon"
                     style="height: 64px; width: 64px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                    <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png"
-                        alt="Company Logo"
+                    <img src="../images/company logo.png" alt="Company Logo"
                         style="width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));">
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; margin-top: 4px;">
@@ -59,47 +59,73 @@
 
     <!-- Admin Panel Content -->
     <div id="adminPanel" style="display: none; width: 100%;">
-    <aside class="sidebar" id="sidebar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
-            <div class="logo-icon" style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png" alt="Company Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        <aside class="sidebar" id="sidebar">
+            <div class="logo"
+                style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
+                <div class="logo-icon"
+                    style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <img src="../images/company logo.png" alt="Company Logo"
+                        style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px;">
+                    <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
+                    <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">Web Service</span>
+                </div>
             </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px;">
-                <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
-                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">Web Service</span>
-            </div>
-        </div>
 
-        <nav class="nav-menu">
-            <div class="nav-subtitle">Main Menu</div>
-            <a href="index.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-                Home
-            </a>
-            <a href="students.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path></svg>
-                Students
-            </a>
-            <a href="interns.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path></svg>
-                Interns
-            </a>
-            
-            <div class="nav-subtitle">Management</div>
-            <a href="attendance.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
-                Attendance
-            </a>
-            <a href="admin.html" class="nav-item active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"></path></svg>
-                Admin Portal
-            </a>
-            <button id="logoutBtn" class="nav-item logout-link" style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                Sign Out
-            </button>
-        </nav>
-    </aside>
+            <nav class="nav-menu">
+                <div class="nav-subtitle">Main Menu</div>
+                <a href="index.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    Home
+                </a>
+                <a href="students.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 010 7.75"></path>
+                    </svg>
+                    Students
+                </a>
+                <a href="interns.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path>
+                    </svg>
+                    Interns
+                </a>
+
+                <div class="nav-subtitle">Management</div>
+                <a href="attendance.html" class="nav-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 11l3 3L22 4"></path>
+                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                    </svg>
+                    Attendance
+                </a>
+                <a href="admin.html" class="nav-item active">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z">
+                        </path>
+                    </svg>
+                    Admin Portal
+                </a>
+                <button id="logoutBtn" class="nav-item logout-link"
+                    style="width: 100%; border: none; background: transparent; cursor: pointer; text-align: left;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Sign Out
+                </button>
+            </nav>
+        </aside>
 
         <main class="main-content">
             <header class="top-bar">
@@ -112,7 +138,7 @@
                         <span class="user-name">Admin Portal</span>
                         <span class="user-role">Super Admin</span>
                     </div>
-                    <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png" class="user-avatar" alt="Admin">
+                    <img src="../images/company logo.png" class="user-avatar" alt="Admin">
                 </div>
             </header>
 
@@ -150,19 +176,7 @@
                                 <option value="36 months">36 months</option>
                             </select>
                         </div>
-                        <div class="input-group">
-                            <label>Total Working Days</label>
-                            <input type="number" id="stuTotalDays" min="1" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Days Attended</label>
-                            <input type="number" id="stuPresentDays" min="0" required>
-                        </div>
-                        <div class="input-group">
-                            <label>Attendance % (Auto Calc)</label>
-                            <input type="number" id="stuAtt" required readonly
-                                style="background-color: rgba(30, 41, 59, 0.4); border: 1px solid var(--border); color: #94a3b8; cursor: not-allowed;">
-                        </div>
+
                         <!-- Performance Tracker for Students -->
                         <div id="studentPerformanceFields" style="display: none;">
                             <div class="input-group">
@@ -183,8 +197,10 @@
                             </div>
                         </div>
 
-                        <div class="input-group"><label>Overall Score</label><input type="number" id="stuMarks" required></div>
-                        <div class="input-group"><label>Fees Paid (₹)</label><input type="number" id="stuFunds" required>
+                        <div class="input-group"><label>Overall Score</label><input type="number" id="stuMarks"
+                                required></div>
+                        <div class="input-group" style="display: none;">
+                            <label>Fees Paid (₹)</label><input type="number" id="stuFunds" value="0">
                         </div>
                         <button type="submit" class="btn-primary" style="width: 100%;">Push to Dashboard</button>
                     </form>
@@ -212,7 +228,7 @@
     </div>
 
     <script src="firebase-config.js"></script>
-    <script src="dashboard.js"></script>
+    <script src="dashboard.js?v=2.1"></script>
 </body>
 
 </html>

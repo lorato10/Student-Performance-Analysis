@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Attendance | Excellence Web Service</title>
+    <link rel="icon" type="image/png" href="../images/company logo.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
@@ -11,7 +13,244 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="style.css">
     <script src="firebase-config.js"></script>
+
+    <style>
+        /* ── Override Modal ── */
+        .override-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(6px);
+            z-index: 9000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+        .override-backdrop.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .override-modal {
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+        }
+        .override-backdrop.open .override-modal {
+            transform: translateY(0) scale(1);
+        }
+        .override-modal-header {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+        .override-lock-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(251,191,36,0.12);
+            border: 1px solid rgba(251,191,36,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fbbf24;
+            flex-shrink: 0;
+        }
+        .override-modal h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin: 0 0 0.15rem 0;
+            color: #f8fafc;
+        }
+        .override-modal p.sub {
+            font-size: 0.78rem;
+            color: #64748b;
+            margin: 0;
+        }
+        .override-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 1.5rem;
+            padding: 0.65rem 0.9rem;
+            background: rgba(15,23,42,0.6);
+            border-radius: 8px;
+            border-left: 3px solid #fbbf24;
+            line-height: 1.5;
+        }
+        .override-label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.4rem;
+        }
+        .override-modal input[type="password"] {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: #0b0f19;
+            color: #f8fafc;
+            font-family: inherit;
+            font-size: 1rem;
+            margin-bottom: 0.4rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+        .override-modal input[type="password"]:focus {
+            outline: none;
+            border-color: #fbbf24;
+            box-shadow: 0 0 0 3px rgba(251,191,36,0.15);
+        }
+        .override-modal input.error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+        }
+        .override-error-msg {
+            color: #ef4444;
+            font-size: 0.78rem;
+            margin-bottom: 1rem;
+            min-height: 1rem;
+            padding-left: 2px;
+        }
+        .override-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        .override-actions button {
+            flex: 1;
+            padding: 0.8rem;
+            border-radius: 10px;
+            border: none;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #overrideConfirmBtn {
+            background: #fbbf24;
+            color: #0f172a;
+        }
+        #overrideConfirmBtn:hover { filter: brightness(1.08); }
+        #overrideCancelBtn {
+            background: rgba(255,255,255,0.05);
+            color: #94a3b8;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+        }
+        #overrideCancelBtn:hover { background: rgba(255,255,255,0.1); color: #f8fafc; }
+
+        /* ── Status Bar ── */
+        .att-status-bar {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.9rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+        .att-status-bar.mode-admin {
+            background: rgba(16,185,129,0.08);
+            border: 1px solid rgba(16,185,129,0.25);
+            color: #6ee7b7;
+        }
+        .att-status-bar.mode-public {
+            background: rgba(51,65,85,0.25);
+            border: 1px solid rgba(255,255,255,0.05);
+            color: #64748b;
+        }
+        .att-status-bar.mode-override {
+            background: rgba(251,191,36,0.08);
+            border: 1px solid rgba(251,191,36,0.25);
+            color: #fde68a;
+        }
+        .att-status-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+        .mode-admin .att-status-dot { background: #10b981; box-shadow: 0 0 6px rgba(16,185,129,0.6); }
+        .mode-public .att-status-dot { background: #475569; }
+        .mode-override .att-status-dot { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.6); }
+
+        /* ── Tabs ── */
+        .att-tabs {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1.25rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 1rem;
+        }
+        .att-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0.55rem 1.2rem;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: transparent;
+            color: #64748b;
+            font-family: inherit;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.18s;
+            white-space: nowrap;
+        }
+        .att-tab-btn.active {
+            background: var(--primary, #fbbf24);
+            color: #0f172a;
+            border-color: transparent;
+        }
+        .att-tab-btn:not(.active):hover {
+            background: rgba(255,255,255,0.05);
+            color: #f8fafc;
+        }
+        #overrideUnlockBtn {
+            display: none;
+            margin-left: auto;
+            align-items: center;
+            gap: 6px;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid rgba(251,191,36,0.3);
+            background: rgba(251,191,36,0.08);
+            color: #fbbf24;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        #overrideUnlockBtn:hover { background: rgba(251,191,36,0.15); }
+        #overrideUnlockBtn.unlocked {
+            color: #22c55e;
+            border-color: rgba(34,197,94,0.3);
+            background: rgba(34,197,94,0.08);
+            cursor: default;
+        }
+    </style>
 </head>
+
 <body>
     <!-- Mobile Sidebar Toggle -->
     <button class="menu-toggle" id="menuToggle">
@@ -24,16 +263,15 @@
 
     <!-- Sidebar Navigation -->
     <aside class="sidebar" id="sidebar">
-        <div class="logo" style="display: flex; align-items: center; gap: 10px; font-size: 1.15rem; line-height: 1.2; margin-bottom: 2.5rem;">
-            <div class="logo-icon" style="height: 48px; width: 48px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png" alt="Company Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        <div class="logo" style="display:flex;align-items:center;gap:10px;font-size:1.15rem;line-height:1.2;margin-bottom:2.5rem;">
+            <div class="logo-icon" style="height:48px;width:48px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <img src="../images/company logo.png" alt="Company Logo" style="width:100%;height:100%;object-fit:contain;">
             </div>
-            <div style="display: flex; flex-direction: column; align-items: flex-start; margin-top: 4px;">
-                <span style="color: #f8fafc; letter-spacing: 0.5px; font-weight: 800;">Excellence</span>
-                <span style="color: var(--primary); font-size: 0.85rem; font-weight: 700;">Web Service</span>
+            <div style="display:flex;flex-direction:column;align-items:flex-start;margin-top:4px;">
+                <span style="color:#f8fafc;letter-spacing:0.5px;font-weight:800;">Excellence</span>
+                <span style="color:var(--primary);font-size:0.85rem;font-weight:700;">Web Service</span>
             </div>
         </div>
-
         <nav class="nav-menu">
             <div class="nav-subtitle">Main Menu</div>
             <a href="index.html" class="nav-item">
@@ -48,7 +286,6 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"></path></svg>
                 Interns
             </a>
-            
             <div class="nav-subtitle">Management</div>
             <a href="attendance.html" class="nav-item active">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path></svg>
@@ -65,56 +302,67 @@
         <header class="top-bar">
             <div class="page-info">
                 <h1>Daily Attendance</h1>
-                <p style="color: var(--secondary);">6-Month chronological tracking matrix.</p>
+                <p style="color:var(--secondary);">6-Month chronological tracking matrix.</p>
             </div>
             <div class="user-profile">
-                <div class="user-info" style="text-align: right;">
+                <div class="user-info" style="text-align:right;">
                     <span class="user-name">Attendance Manager</span>
                     <span class="user-role">Administrator</span>
                 </div>
-                <img src="C:\Users\DELL\OneDrive\Desktop\Project_Excellence (1)\images\company logo.png" class="user-avatar" alt="Admin">
+                <img src="../images/company logo.png" class="user-avatar" alt="Admin">
             </div>
         </header>
 
         <!-- Login Screen -->
-        <div id="authScreen" class="auth-wrapper" style="margin-top: 2rem;">
+        <div id="authScreen" class="auth-wrapper" style="margin-top:2rem;">
             <div class="card auth-card">
-                <h2>Admin Login</h2>
-                <p style="color: var(--secondary); margin-bottom: 2rem;">Please log in to view and manage attendance.</p>
+                <h2 style="margin-bottom:0.5rem;">Admin Login</h2>
+                <p style="color:var(--secondary);margin-bottom:2rem;font-size:0.9rem;">Sign in to view and manage attendance records.</p>
                 <form id="loginForm" class="styled-form">
                     <div class="input-group">
                         <label>Email Address</label>
-                        <input type="email" id="email" placeholder="admin@core.com" required>
+                        <input type="email" id="email" placeholder="admin@excellence.com" required>
                     </div>
                     <div class="input-group">
                         <label>Password</label>
                         <input type="password" id="password" placeholder="••••••••" required>
                     </div>
-                    <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Enter Portal</button>
+                    <button type="submit" class="btn-primary" style="width:100%;margin-top:1rem;">Enter Portal</button>
                 </form>
                 <p id="loginError" class="error-msg">Invalid Credentials. Please try again.</p>
             </div>
         </div>
 
-        <div id="adminPanel" style="display: none; width: 100%; flex-direction: column;">
-            <div class="card" style="padding: 1.5rem; margin-bottom: 2rem;">
-                <div class="tabs" style="display: flex; gap: 1rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
-                    <button id="tabStudent" class="btn-primary" style="background: var(--primary);">Students Sheet</button>
-                    <button id="tabIntern" class="btn-primary" style="background: transparent; border: 1px solid var(--border); color: var(--text);">Interns Sheet</button>
-                </div>
-                
-                <div id="adminWarning" style="display: none; background: rgba(16, 185, 129, 0.1); border: 1px solid #10B981; color: #10B981; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <strong>Admin Mode Active:</strong> You can edit attendance within a 3-day window. Click "A" to toggle to "P".
-                </div>
-                
-                <div id="adminLockedInfo" style="display: none; background: rgba(51, 65, 85, 0.3); border: 1px solid var(--border); color: var(--secondary); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
-                    <strong>Public View Active:</strong> Read-only mode. Please authenticate as Admin to make changes to unlocked windows.
+        <!-- Admin Panel -->
+        <div id="adminPanel" style="display:none;width:100%;flex-direction:column;">
+            <div class="card" style="padding:1.5rem;margin-bottom:2rem;">
+
+                <!-- Tabs Row -->
+                <div class="att-tabs">
+                    <button id="tabStudent" class="att-tab-btn active">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        Students Sheet
+                    </button>
+                    <button id="tabIntern" class="att-tab-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+                        Interns Sheet
+                    </button>
+                    <button id="overrideUnlockBtn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+                        Override Lock
+                    </button>
                 </div>
 
-                <!-- The Grid Container -->
-                <div class="table-container" style="overflow-x: auto; max-height: 65vh; position: relative;">
-                    <table id="attendanceTable" style="white-space: nowrap; font-size: 0.85rem; border-collapse: separate; border-spacing: 0;">
-                        <thead id="attendanceHead" style="position: sticky; top: 0; z-index: 2; background-color: var(--card-bg);">
+                <!-- Status Bar -->
+                <div id="statusBar" class="att-status-bar mode-public" style="display:none;">
+                    <span class="att-status-dot"></span>
+                    <span id="statusMsg">Loading…</span>
+                </div>
+
+                <!-- Attendance Grid -->
+                <div class="table-container" style="overflow-x:auto;max-height:65vh;position:relative;">
+                    <table id="attendanceTable" style="white-space:nowrap;font-size:0.85rem;border-collapse:separate;border-spacing:0;">
+                        <thead id="attendanceHead" style="position:sticky;top:0;z-index:2;background-color:var(--card-bg);">
                             <!-- Rendered by JS -->
                         </thead>
                         <tbody id="attendanceBody">
@@ -126,8 +374,162 @@
         </div>
     </main>
 
+    <!-- ── Override Password Modal ── -->
+    <div class="override-backdrop" id="overrideBackdrop">
+        <div class="override-modal">
+            <div class="override-modal-header">
+                <div class="override-lock-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/>
+                        <path d="M7 11V7a5 5 0 0110 0v4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3>Override Locked Record</h3>
+                    <p class="sub">Enter the override password to enable editing</p>
+                </div>
+            </div>
 
-    
+            <div class="override-meta">
+                ⚠️ Records older than <strong>3 days</strong> are locked by default. Enter the override password to unlock <strong>all locked cells for this session</strong>. This will reset when you reload the page.
+            </div>
+
+            <span class="override-label">Override Password</span>
+            <input type="password" id="overridePasswordInput" placeholder="Enter override password…" autocomplete="off">
+            <p class="override-error-msg" id="overrideError"></p>
+
+            <div class="override-actions">
+                <button id="overrideCancelBtn" onclick="closeOverrideModal()">Cancel</button>
+                <button id="overrideConfirmBtn" onclick="confirmOverride()">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline;margin-right:5px;vertical-align:middle;"><rect x="1" y="11" width="19" height="11" rx="2"/><path d="M11 11V7a5 5 0 0110 0v4"/></svg>
+                    Unlock &amp; Edit
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="dashboard.js"></script>
+    <script>
+        // ── Change this to your desired override password ──
+        const OVERRIDE_PASSWORD = 'excellence@override';
+
+        let overrideUnlocked = false;
+        let pendingOverrideCallback = null;
+
+        // ── Tab switching ──
+        document.getElementById('tabStudent')?.addEventListener('click', () => {
+            document.getElementById('tabStudent').classList.add('active');
+            document.getElementById('tabIntern').classList.remove('active');
+        });
+        document.getElementById('tabIntern')?.addEventListener('click', () => {
+            document.getElementById('tabIntern').classList.add('active');
+            document.getElementById('tabStudent').classList.remove('active');
+        });
+
+        // ── Override modal ──
+        document.getElementById('overrideUnlockBtn')?.addEventListener('click', openOverrideModal);
+
+        function openOverrideModal(callback) {
+            if (overrideUnlocked) return; // already unlocked
+            pendingOverrideCallback = (typeof callback === 'function') ? callback : null;
+            const input = document.getElementById('overridePasswordInput');
+            const errEl = document.getElementById('overrideError');
+            if (input) { input.value = ''; input.classList.remove('error'); }
+            if (errEl) errEl.textContent = '';
+            document.getElementById('overrideBackdrop').classList.add('open');
+            setTimeout(() => input?.focus(), 200);
+        }
+
+        function closeOverrideModal() {
+            document.getElementById('overrideBackdrop').classList.remove('open');
+            pendingOverrideCallback = null;
+        }
+
+        function confirmOverride() {
+            const input = document.getElementById('overridePasswordInput');
+            const errEl = document.getElementById('overrideError');
+            if (!input) return;
+            const entered = input.value.trim();
+
+            if (entered === OVERRIDE_PASSWORD) {
+                overrideUnlocked = true;
+                closeOverrideModal();
+                updateStatusBar();
+                // Re-render matrix so locked cells become editable
+                if (typeof renderAttendanceMatrix === 'function') renderAttendanceMatrix();
+                if (typeof pendingOverrideCallback === 'function') {
+                    pendingOverrideCallback();
+                    pendingOverrideCallback = null;
+                }
+            } else {
+                input.classList.add('error');
+                if (errEl) errEl.textContent = '✕ Incorrect password. Please try again.';
+                input.value = '';
+                // Reset error state on next keypress
+                setTimeout(() => input?.focus(), 50);
+            }
+        }
+
+        // Keyboard handling inside modal
+        document.getElementById('overridePasswordInput')?.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); confirmOverride(); }
+            if (e.key === 'Escape') closeOverrideModal();
+            // Clear error on typing
+            e.target.classList.remove('error');
+            const errEl = document.getElementById('overrideError');
+            if (errEl) errEl.textContent = '';
+        });
+
+        // Close on backdrop click
+        document.getElementById('overrideBackdrop')?.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('overrideBackdrop')) closeOverrideModal();
+        });
+
+        // ── Status bar ──
+        function updateStatusBar() {
+            const bar = document.getElementById('statusBar');
+            const msg = document.getElementById('statusMsg');
+            const overrideBtn = document.getElementById('overrideUnlockBtn');
+            if (!bar || !msg) return;
+
+            bar.style.display = 'flex';
+            bar.className = 'att-status-bar';
+
+            if (overrideUnlocked) {
+                bar.classList.add('mode-override');
+                msg.innerHTML = '<strong>Override Active:</strong> All locked records are editable for this session. Reload the page to restore locks.';
+                if (overrideBtn) {
+                    overrideBtn.style.display = 'flex';
+                    overrideBtn.className = 'unlocked';
+                    overrideBtn.innerHTML = '🔓 All Records Unlocked';
+                    overrideBtn.style.cssText += ';cursor:default;pointer-events:none;';
+                }
+            } else if (window._isAdminModeActive) {
+                bar.classList.add('mode-admin');
+                msg.innerHTML = '<strong>Admin Mode Active:</strong> Click any cell in the last 3 days to toggle attendance. For older records, click <strong>Override Lock</strong> to enter the override password.';
+                if (overrideBtn) {
+                    overrideBtn.style.display = 'flex';
+                    overrideBtn.className = '';
+                    overrideBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> Override Lock';
+                    overrideBtn.style.cssText = '';
+                }
+            } else {
+                bar.classList.add('mode-public');
+                msg.innerHTML = '<strong>Public View:</strong> Read-only mode. Please sign in as Admin to make changes.';
+                if (overrideBtn) overrideBtn.style.display = 'none';
+            }
+        }
+
+        // Track Firebase auth state for the status bar
+        firebase.auth().onAuthStateChanged((user) => {
+            window._isAdminModeActive = !!user;
+            updateStatusBar();
+        });
+
+        // Expose overrideUnlocked to dashboard.js's toggleDailyAttendance
+        window.isOverrideUnlocked = () => overrideUnlocked;
+        window.openOverrideModal = openOverrideModal;
+    </script>
 </body>
+
 </html>

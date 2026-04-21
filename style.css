@@ -553,3 +553,95 @@ td {
 .att-status-locked { opacity: 0.4; cursor: not-allowed !important; }
 .sticky-col { position: sticky; left: 0; background-color: var(--card-bg); z-index: 1; border-right: 1px solid var(--border); min-width: 200px; }
 th.sticky-col { z-index: 3 !important; }
+
+/* ── Attendance Analytics Cards ── */
+.att-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.att-period-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    background: rgba(168, 85, 247, 0.15);
+    color: #a855f7;
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.att-summary-strip {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.att-stat-pill {
+    flex: 1;
+    min-width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.2rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 10px;
+    border: 1px solid transparent;
+}
+
+.att-stat-pill.purple {
+    background: rgba(168, 85, 247, 0.1);
+    border-color: rgba(168, 85, 247, 0.2);
+}
+.att-stat-pill.blue {
+    background: rgba(14, 165, 233, 0.1);
+    border-color: rgba(14, 165, 233, 0.2);
+}
+.att-stat-pill.green {
+    background: rgba(34, 197, 94, 0.1);
+    border-color: rgba(34, 197, 94, 0.2);
+}
+.att-stat-pill.red {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.att-stat-label {
+    font-size: 0.7rem;
+    color: var(--secondary);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.att-stat-value {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+/* ── Performers Tables ── */
+.performers-table {
+    min-width: unset;
+    width: 100%;
+}
+
+.performers-table th {
+    font-size: 0.78rem;
+    padding: 0.65rem 0.75rem;
+}
+
+.performers-table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+}
+
+.performers-table tr:last-child td {
+    border-bottom: none;
+}
+
+
