@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power BI - Excellence Web Service</title>
+    <link rel="icon" type="image/png" href="../images/company logo.png">
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="firebase-config.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f3f2f1; color: #323130; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        /* ── Power BI Black Title Bar ── */
+        .pbi-titlebar { height: 36px; background: #1b1a19; display: flex; align-items: center; padding: 0 12px; gap: 10px; flex-shrink: 0; }
+        .pbi-titlebar .pbi-logo { display: flex; align-items: center; gap: 6px; color: #f2c811; font-weight: 700; font-size: 13px; }
+        .pbi-titlebar .pbi-logo svg { fill: #f2c811; }
+        .pbi-titlebar .pbi-file-name { color: #d2d0ce; font-size: 12px; margin-left: 8px; }
+        .pbi-titlebar .pbi-right { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+        .pbi-titlebar .pbi-right .pbi-win-btn { width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; color: #d2d0ce; border: none; background: transparent; cursor: pointer; font-size: 11px; }
+        .pbi-titlebar .pbi-right .pbi-win-btn:hover { background: #3b3a39; }
+
+        /* ── Power BI Ribbon / Toolbar ── */
+        .pbi-ribbon { height: 44px; background: #ffffff; border-bottom: 1px solid #e1dfdd; display: flex; align-items: center; padding: 0 16px; gap: 2px; flex-shrink: 0; }
+        .pbi-ribbon-btn { height: 32px; padding: 0 10px; background: transparent; border: 1px solid transparent; border-radius: 2px; font-size: 12px; color: #323130; cursor: pointer; display: flex; align-items: center; gap: 5px; font-family: inherit; }
+        .pbi-ribbon-btn:hover { background: #f3f2f1; border-color: #c8c6c4; }
+        .pbi-ribbon-btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+        .pbi-ribbon-sep { width: 1px; height: 24px; background: #e1dfdd; margin: 0 6px; }
+        .pbi-ribbon-right { margin-left: auto; display: flex; align-items: center; gap: 2px; }
+        .pbi-ribbon-btn.primary { background: #118dff; color: white; border-color: #118dff; }
+        .pbi-ribbon-btn.primary:hover { background: #0f7ad4; }
+
+        /* ── Main Layout ── */
+        .pbi-main { display: flex; flex: 1; overflow: hidden; }
+
+        /* ── Left Nav ── */
+        .pbi-nav { width: 48px; background: #ffffff; border-right: 1px solid #e1dfdd; display: flex; flex-direction: column; align-items: center; padding-top: 8px; gap: 4px; flex-shrink: 0; }
+        .pbi-nav-icon { width: 36px; height: 36px; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #605e5c; cursor: pointer; border: none; background: transparent; }
+        .pbi-nav-icon:hover { background: #f3f2f1; color: #323130; }
+        .pbi-nav-icon.active { background: #e1dfdd; color: #118dff; }
+
+        /* ── Canvas Area ── */
+        .pbi-canvas-area { flex: 1; background: #e8e6e3; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; }
+        .pbi-report-canvas { flex: 1; background: #ffffff; border: 1px solid #c8c6c4; border-radius: 0; box-shadow: 0 1.6px 3.6px 0 rgba(0,0,0,.132), 0 0.3px 0.9px 0 rgba(0,0,0,.108); padding: 24px; }
+        .pbi-report-header { margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #118dff; }
+        .pbi-report-header h1 { font-size: 20px; font-weight: 600; color: #252423; }
+        .pbi-report-header p { font-size: 11px; color: #a19f9d; margin-top: 2px; }
+        .pbi-tile { background: #ffffff; border: 1px solid #edebe9; padding: 16px; margin-bottom: 16px; }
+        .pbi-tile-title { font-size: 12px; font-weight: 600; color: #605e5c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #f3f2f1; display: flex; align-items: center; gap: 6px; }
+        .pbi-tile-title::before { content: ''; width: 3px; height: 14px; background: #118dff; border-radius: 2px; }
+        .pbi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .chart-wrapper { width: 100%; position: relative; }
+
+        /* ── Filter Pane ── */
+        .pbi-filters { width: 260px; background: #ffffff; border-left: 1px solid #e1dfdd; flex-shrink: 0; display: flex; flex-direction: column; overflow-y: auto; }
+        .pbi-filters-header { height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid #edebe9; font-size: 13px; font-weight: 600; color: #323130; }
+        .pbi-filters-header svg { width: 14px; height: 14px; color: #605e5c; cursor: pointer; }
+        .pbi-filter-section { padding: 12px 16px; border-bottom: 1px solid #f3f2f1; }
+        .pbi-filter-label { font-size: 11px; font-weight: 600; color: #605e5c; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+        .pbi-filter-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; color: #323130; }
+        .pbi-filter-item input[type="checkbox"] { accent-color: #118dff; width: 14px; height: 14px; }
+        .pbi-filter-chip { display: inline-block; padding: 2px 8px; background: #deecf9; color: #0078d4; border-radius: 2px; font-size: 11px; font-weight: 600; margin: 2px 2px; }
+        .pbi-filter-search { width: 100%; padding: 6px 8px; border: 1px solid #c8c6c4; border-radius: 2px; font-size: 12px; margin-bottom: 8px; font-family: inherit; }
+        .pbi-filter-search:focus { outline: none; border-color: #118dff; }
+
+        /* ── Page Tabs ── */
+        .pbi-pagetabs { height: 32px; background: #ffffff; border-top: 1px solid #e1dfdd; display: flex; align-items: stretch; padding: 0 48px; flex-shrink: 0; }
+        .pbi-tab { padding: 0 16px; font-size: 12px; color: #605e5c; display: flex; align-items: center; border: none; background: transparent; cursor: pointer; border-bottom: 2px solid transparent; font-family: inherit; }
+        .pbi-tab:hover { color: #323130; background: #f3f2f1; }
+        .pbi-tab.active { color: #118dff; border-bottom-color: #118dff; font-weight: 600; }
+
+        /* ── Status Bar ── */
+        .pbi-statusbar { height: 24px; background: #f3f2f1; border-top: 1px solid #e1dfdd; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 11px; color: #a19f9d; flex-shrink: 0; }
+        .pbi-statusbar-right { display: flex; align-items: center; gap: 12px; }
+        .pbi-zoom { display: flex; align-items: center; gap: 4px; }
+        .pbi-zoom input { width: 60px; height: 3px; accent-color: #118dff; }
+
+        @media (max-width: 900px) {
+            .pbi-filters { display: none; }
+            .pbi-grid { grid-template-columns: 1fr; }
+            .pbi-nav { width: 0; overflow: hidden; }
+            .pbi-canvas-area { padding: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ── Title Bar ── -->
+    <div class="pbi-titlebar">
+        <div class="pbi-logo">
+            <svg width="16" height="16" viewBox="0 0 24 24"><rect x="3" y="14" width="4" height="7" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>
+            Power BI
+        </div>
+        <span class="pbi-file-name" id="pbiFileName">Excellence Analytics Report.pbix</span>
+        <div class="pbi-right">
+            <button class="pbi-win-btn">─</button>
+            <button class="pbi-win-btn">□</button>
+            <button class="pbi-win-btn" onclick="window.history.back()">✕</button>
+        </div>
+    </div>
+
+    <!-- ── Ribbon ── -->
+    <div class="pbi-ribbon">
+        <button class="pbi-ribbon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> File</button>
+        <button class="pbi-ribbon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Home</button>
+        <button class="pbi-ribbon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> Insert</button>
+        <button class="pbi-ribbon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Modeling</button>
+        <div class="pbi-ribbon-sep"></div>
+        <button class="pbi-ribbon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg> Refresh</button>
+        <div class="pbi-ribbon-right">
+            <button class="pbi-ribbon-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Export</button>
+            <button class="pbi-ribbon-btn primary"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> Share</button>
+        </div>
+    </div>
+
+    <!-- ── Main Layout ── -->
+    <div class="pbi-main">
+        <!-- Left Nav -->
+        <div class="pbi-nav">
+            <button class="pbi-nav-icon active" title="Report"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+            <button class="pbi-nav-icon" title="Data"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>
+            <button class="pbi-nav-icon" title="Model"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg></button>
+        </div>
+
+        <!-- Canvas -->
+        <div class="pbi-canvas-area">
+            <div class="pbi-report-canvas">
+                <div class="pbi-report-header">
+                    <h1 id="reportTitle">Excellence Analytics Report</h1>
+                    <p>Last refreshed: <span id="refreshTime"></span> · Data source: Firebase Realtime Database</p>
+                </div>
+
+                <div id="studentReport" style="display: none;">
+                    <div class="pbi-grid">
+                        <div class="pbi-tile" id="pbiStudentAttContainer">
+                            <div class="pbi-tile-title">Student Attendance Trend (Last 7 Days)</div>
+                            <div class="chart-wrapper" style="height: 320px;"><canvas id="studentAttendanceChart"></canvas></div>
+                        </div>
+                        <div class="pbi-tile" id="pbiStudentMonContainer">
+                            <div class="pbi-tile-title">Fee Distribution by Class</div>
+                            <div class="chart-wrapper" style="height: 320px;"><canvas id="studentMonetaryChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="internReport" style="display: none;">
+                    <div class="pbi-grid">
+                        <div class="pbi-tile" id="pbiInternAttContainer">
+                            <div class="pbi-tile-title">Intern Attendance Trend (Last 7 Days)</div>
+                            <div class="chart-wrapper" style="height: 320px;"><canvas id="internAttendanceChart"></canvas></div>
+                        </div>
+                        <div class="pbi-tile" id="pbiInternMonContainer">
+                            <div class="pbi-tile-title">Domain Monetary Analysis (Stipend/Fees)</div>
+                            <div class="chart-wrapper" style="height: 320px;"><canvas id="internMonetaryChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="adminReport" style="display: none;">
+                    <div class="pbi-tile" id="pbiAdminAttContainer">
+                        <div class="pbi-tile-title">Attendance Analytics (30-Day Trend)</div>
+                        <div class="chart-wrapper" style="height: 320px;"><canvas id="combinedAttChart30"></canvas></div>
+                    </div>
+                    <div class="pbi-grid">
+                        <div class="pbi-tile" id="pbiAdminExamContainer">
+                            <div class="pbi-tile-title">Exam Performance by Category</div>
+                            <div class="chart-wrapper" style="height: 320px;"><canvas id="allExamTrendChart"></canvas></div>
+                        </div>
+                        <div class="pbi-tile" id="pbiAdminDistContainer">
+                            <div class="pbi-tile-title">Member Distribution</div>
+                            <div class="chart-wrapper" style="height: 320px;"><canvas id="memberDistributionChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Pane -->
+        <div class="pbi-filters" id="filterPane">
+            <div class="pbi-filters-header">
+                Filters
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" onclick="document.getElementById('filterPane').style.display='none'" style="cursor:pointer"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+            <div class="pbi-filter-section">
+                <div class="pbi-filter-label">Filters on this page</div>
+                <input class="pbi-filter-search" placeholder="Search" disabled>
+                <div class="pbi-filter-item"><input type="checkbox" checked disabled> <span>All data</span></div>
+            </div>
+            <div class="pbi-filter-section">
+                <div class="pbi-filter-label">Report Level Filters</div>
+                <div class="pbi-filter-item"><input type="checkbox" checked disabled> <span>Type</span></div>
+                <div style="padding-left: 22px; margin-top: 4px;">
+                    <span class="pbi-filter-chip">Student</span>
+                    <span class="pbi-filter-chip">Intern</span>
+                </div>
+            </div>
+            <div class="pbi-filter-section">
+                <div class="pbi-filter-label">Data Source</div>
+                <div style="font-size: 12px; color: #605e5c; padding: 4px 0;">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;"><span style="width:8px;height:8px;border-radius:50%;background:#107c10;display:inline-block;"></span> Connected</div>
+                    <div style="color:#a19f9d;font-size:11px;">Firebase Realtime DB</div>
+                    <div style="color:#a19f9d;font-size:11px;margin-top:2px;">excellence-web-services</div>
+                </div>
+            </div>
+            <div class="pbi-filter-section">
+                <div class="pbi-filter-label">Visual Level Filters</div>
+                <div class="pbi-filter-item"><input type="checkbox" checked disabled> <span>Attendance Log</span></div>
+                <div class="pbi-filter-item"><input type="checkbox" checked disabled> <span>Financial Records</span></div>
+                <div class="pbi-filter-item"><input type="checkbox" checked disabled> <span>Exam Scores</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Page Tabs ── -->
+    <div class="pbi-pagetabs">
+        <button class="pbi-tab" id="tabAdmin" onclick="switchReport('admin')">Overview</button>
+        <button class="pbi-tab" id="tabStudents" onclick="switchReport('students')">Students</button>
+        <button class="pbi-tab" id="tabInterns" onclick="switchReport('interns')">Interns</button>
+    </div>
+
+    <!-- ── Status Bar ── -->
+    <div class="pbi-statusbar">
+        <span>Ready</span>
+        <div class="pbi-statusbar-right">
+            <span id="statusInfo">Reading view</span>
+            <div class="pbi-zoom">
+                <span>Zoom</span>
+                <input type="range" min="50" max="200" value="100" disabled>
+                <span>100%</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden elements dashboard.js needs -->
+    <div style="display: none;">
+        <input type="text" id="studentSearch" value="">
+        <div id="totalCount"></div><div id="deptCount"></div><div id="avgAtt"></div><div id="netBalance"></div>
+        <div id="studentAvgRate"></div><div id="studentBestDay"></div><div id="studentLowestDay"></div>
+        <div id="internAvgRate"></div><div id="internBestDay"></div><div id="internLowestDay"></div>
+        <div id="studentCount"></div><div id="studentAvgExam"></div><div id="studentFees"></div><div id="studentAvgAtt"></div>
+        <div id="internCount"></div><div id="totalProjects"></div><div id="internFees"></div><div id="internAvgAtt"></div>
+        <tbody id="topStudentsTable"></tbody><tbody id="topInternsTable"></tbody>
+        <tbody id="studentTableBody"></tbody><tbody id="internTableBody"></tbody>
+    </div>
+
+    <script>
+        // Power BI light theme for Chart.js
+        if (typeof Chart !== 'undefined') {
+            Chart.defaults.color = '#605e5c';
+            Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+            Chart.defaults.font.size = 11;
+            Chart.defaults.plugins.tooltip.backgroundColor = '#ffffff';
+            Chart.defaults.plugins.tooltip.titleColor = '#252423';
+            Chart.defaults.plugins.tooltip.bodyColor = '#605e5c';
+            Chart.defaults.plugins.tooltip.borderColor = '#e1dfdd';
+            Chart.defaults.plugins.tooltip.borderWidth = 1;
+            Chart.defaults.plugins.tooltip.cornerRadius = 2;
+            Chart.defaults.plugins.tooltip.padding = 10;
+            Chart.defaults.plugins.legend.labels.usePointStyle = true;
+            Chart.defaults.plugins.legend.labels.boxWidth = 8;
+            Chart.defaults.scale.grid = { color: '#f3f2f1', drawBorder: false };
+        }
+
+        // Set refresh time
+        document.getElementById('refreshTime').textContent = new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+
+        // Parse URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const report = urlParams.get('report') || 'admin';
+        const chart = urlParams.get('chart');
+
+        function switchReport(r) {
+            document.getElementById('studentReport').style.display = 'none';
+            document.getElementById('internReport').style.display = 'none';
+            document.getElementById('adminReport').style.display = 'none';
+            document.querySelectorAll('.pbi-tab').forEach(t => t.classList.remove('active'));
+
+            if (r === 'students') {
+                document.getElementById('studentReport').style.display = 'block';
+                document.getElementById('reportTitle').innerText = 'Student Financials & Attendance';
+                document.getElementById('pbiFileName').innerText = 'Student_Report.pbix';
+                document.getElementById('tabStudents').classList.add('active');
+            } else if (r === 'interns') {
+                document.getElementById('internReport').style.display = 'block';
+                document.getElementById('reportTitle').innerText = 'Intern Performance & Engagement';
+                document.getElementById('pbiFileName').innerText = 'Intern_Report.pbix';
+                document.getElementById('tabInterns').classList.add('active');
+            } else {
+                document.getElementById('adminReport').style.display = 'block';
+                document.getElementById('reportTitle').innerText = 'Excellence Global Analytics';
+                document.getElementById('pbiFileName').innerText = 'Excellence_Analytics.pbix';
+                document.getElementById('tabAdmin').classList.add('active');
+            }
+        }
+
+        switchReport(report);
+
+        // If specific chart requested, isolate it
+        if (chart) {
+            document.querySelectorAll('.pbi-tile').forEach(c => {
+                if (c.id === chart) {
+                    c.style.display = 'block';
+                    c.style.gridColumn = '1 / -1';
+                } else {
+                    c.style.display = 'none';
+                }
+            });
+            document.querySelectorAll('.pbi-grid').forEach(g => {
+                g.style.gridTemplateColumns = '1fr';
+            });
+        }
+    </script>
+    <script src="dashboard.js"></script>
+</body>
+</html>

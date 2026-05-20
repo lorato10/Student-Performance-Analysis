@@ -94,7 +94,7 @@ db.ref('students').on('value', (snapshot) => {
             // Use manually set totalDays if available, otherwise use recorded days
             const denom = parseInt(studentData.totalDays || totalRecorded);
             if (denom > 0) {
-                studentData.attendance = Math.round((presentCount / denom) * 100);
+                studentData.attendance = Math.min(100, Math.round((presentCount / denom) * 100));
             }
         } else if (!studentData.attendance) {
             studentData.attendance = 0;
@@ -114,11 +114,12 @@ db.ref('students').on('value', (snapshot) => {
     
     // Route to appropriate rendering function based on current page
     const path = window.location.pathname;
-    if (path.includes('index.html') || path.endsWith('/')) {
+    const search = window.location.search;
+    if (path.includes('index.html') || path.endsWith('/') || (path.includes('powerbi.html') && search.includes('admin'))) {
         renderHomeDashboard(studentArray);
-    } else if (path.includes('interns.html')) {
+    } else if (path.includes('interns.html') || (path.includes('powerbi.html') && search.includes('interns'))) {
         renderInternDashboard(studentArray);
-    } else if (path.includes('students.html')) {
+    } else if (path.includes('students.html') || (path.includes('powerbi.html') && search.includes('students'))) {
         renderStudentDashboard(studentArray);
     }
 
@@ -885,8 +886,8 @@ function renderAttendanceMatrix() {
             const dateKey = date.toISOString().split('T')[0];
             const diffTime = now.getTime() - date.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            const isLocked = diffDays > 3;
-            // Editable if: admin logged in AND (within 3-day window OR override is active)
+            const isLocked = diffDays > 7;
+            // Editable if: admin logged in AND (within 7-day window OR override is active)
             const isEditable = isAdminMode && (!isLocked || overrideActive);
             const editableClass = isEditable ? 'editable' : '';
             // Locked visual only shown when actually locked and override not active

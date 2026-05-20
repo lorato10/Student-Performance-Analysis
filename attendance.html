@@ -391,7 +391,7 @@
             </div>
 
             <div class="override-meta">
-                ⚠️ Records older than <strong>3 days</strong> are locked by default. Enter the override password to unlock <strong>all locked cells for this session</strong>. This will reset when you reload the page.
+                ⚠️ Records older than <strong>7 days</strong> are locked by default. Enter the override password to unlock <strong>all locked cells for this session</strong>. This will reset when you reload the page.
             </div>
 
             <span class="override-label">Override Password</span>
@@ -506,7 +506,7 @@
                 }
             } else if (window._isAdminModeActive) {
                 bar.classList.add('mode-admin');
-                msg.innerHTML = '<strong>Admin Mode Active:</strong> Click any cell in the last 3 days to toggle attendance. For older records, click <strong>Override Lock</strong> to enter the override password.';
+                msg.innerHTML = '<strong>Admin Mode Active:</strong> Click any cell in the last 7 days to toggle attendance. For older records, click <strong>Override Lock</strong> to enter the override password.';
                 if (overrideBtn) {
                     overrideBtn.style.display = 'flex';
                     overrideBtn.className = '';
